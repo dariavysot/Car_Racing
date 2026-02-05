@@ -1,5 +1,5 @@
 class Settings:
-    WIDTH, HEIGHT = 600, 900
+    WIDTH, HEIGHT = 480, 720
     FPS = 60
 
     CAR_SPEED = 10
