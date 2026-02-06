@@ -95,6 +95,9 @@ class Game:
         self.draw_score(dt)               # Logic & UI
 
     def draw_score(self, dt):
+        if self.state.paused:
+            return
+        
         self.state.score += dt
         self.state.difficulty += dt * 0.002 / 1000
 
@@ -157,7 +160,7 @@ class Game:
                     running = False
 
                 if e.type == pg.KEYDOWN:
-                    if e.key == pg.K_ESCAPE:
+                    if e.key == pg.K_SPACE:
                         self.state.paused = not self.state.paused
 
             keys = pg.key.get_pressed()
