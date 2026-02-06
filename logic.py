@@ -156,14 +156,21 @@ class Game:
                 if e.type == pg.QUIT:
                     running = False
 
-            keys = pg.key.get_pressed()
-            self.update_objects(keys, dt, now)
-            crashed = self.check_collisions()
-            self.draw(dt)
+                if e.type == pg.KEYDOWN:
+                    if e.key == pg.K_ESCAPE:
+                        self.state.paused = not self.state.paused
 
-            if crashed:
-                self.handle_crash(crashed)
-                self.reset()
+            keys = pg.key.get_pressed()
+
+            if not self.state.paused:
+                self.update_objects(keys, dt, now)
+
+                crashed = self.check_collisions()
+                if crashed:
+                    self.handle_crash(crashed)
+                    self.reset()
+
+            self.draw(dt)
 
         pg.quit()
         sys.exit()

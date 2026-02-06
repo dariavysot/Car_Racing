@@ -1,3 +1,6 @@
+# GameObject is a base class for all drawable/movable entities
+# PlayerCar and Obstacle should inherit from it
+
 import pygame as pg
 
 class GameObject:
