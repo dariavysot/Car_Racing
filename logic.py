@@ -11,7 +11,7 @@ from state import GameState
 from managers.asset_manager import AssetManager
 from managers.obstacle_manager import ObstacleManager
 from entities.road import Road
-from entities.player import Player
+from entities.player import PlayerCar
 
 class Game:
     def __init__(self):
@@ -42,10 +42,10 @@ class Game:
     # ----------------------------
     def load_assets(self):
         am = AssetManager
-        self.road_img = am.load_road()
-        self.player_img = am.load_player(C.RED)
-        self.enemy_img = am.load_player(C.BLUE)
-        self.explosion_img = am.load_explosion()
+        self.road_img = am.load_road()      # Core & Player
+        self.player_img = am.load_player(C.RED)   # Core & Player
+        self.enemy_img = am.load_player(C.BLUE)   # Obstacles & Math
+        self.explosion_img = am.load_explosion()  # Logic & UI
 
         self.car_w = C.WIDTH // 4.4
         self.car_h = int(self.car_w * 1.4)
@@ -55,12 +55,12 @@ class Game:
     # ----------------------------
     def reset(self):
         self.state = GameState()
-        self.reset_player()
-        self.reset_enemies()
-        self.reset_road()
+        self.reset_player()                 # Core & Player
+        self.reset_enemies()                # Obstacles & Math
+        self.reset_road()                   # Core & Player
 
     def reset_player(self):
-        self.player = Player(self.player_img, self.car_w)
+        self.player = PlayerCar(self.player_img, self.car_w)
 
     def reset_enemies(self):
         self.enemies = ObstacleManager(self.enemy_img, self.car_w, self.car_h)
@@ -81,7 +81,7 @@ class Game:
 
         self.enemies.update()             # Obstacles & Math
 
-    def check_collisions(self):
+    def check_collisions(self):           # Logic & UI
         return self.enemies.check_collision(self.player.rect)
 
     # ----------------------------
@@ -90,9 +90,9 @@ class Game:
     def draw(self, dt):
         self.screen.fill(C.GRAY)
         self.road.draw(self.screen)
-        self.enemies.draw(self.screen)
-        self.player.draw(self.screen)
-        self.draw_score(dt)
+        self.enemies.draw(self.screen)    # Core & Player
+        self.player.draw(self.screen)     # Core & Player
+        self.draw_score(dt)               # Logic & UI
 
     def draw_score(self, dt):
         self.state.score += dt
@@ -105,7 +105,7 @@ class Game:
         pg.display.flip()
 
     # ----------------------------
-    # CRASH BLOCK
+    # CRASH BLOCK                         Logic & UI
     # ----------------------------
     def handle_crash(self, enemy_rect):
         self.show_explosion(enemy_rect)
