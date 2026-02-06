@@ -147,7 +147,11 @@ class Game:
                     pg.quit()
                     sys.exit()
                 if e.type == pg.KEYDOWN:
-                    waiting = False
+                    if e.key == pg.K_ESCAPE:
+                        pg.quit()
+                        sys.exit()
+                    else:
+                        waiting = False
             self.clock.tick(30)
 
     # ----------------------------
@@ -166,6 +170,8 @@ class Game:
                 if e.type == pg.KEYDOWN:
                     if e.key == pg.K_SPACE:
                         self.state.paused = not self.state.paused
+                    elif e.key == pg.K_ESCAPE:
+                        running = False
 
             keys = pg.key.get_pressed()
 
