@@ -94,18 +94,22 @@ class Game:
         self.player.draw(self.screen)     # Core & Player
         self.draw_score(dt)               # Logic & UI
 
-    def draw_score(self, dt):
         if self.state.paused:
-            return
-        
-        self.state.score += dt
-        self.state.difficulty += dt * 0.002 / 1000
+            paused_text = self.font_big.render("PAUSED", True, C.WHITE)
+            rect = paused_text.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2))
+            self.screen.blit(paused_text, rect)
+
+        pg.display.flip()  
+
+    def draw_score(self, dt):
+        if not self.state.paused:
+            self.state.score += dt
+            self.state.difficulty += dt * 0.002 / 1000
 
         score = self.font_small.render(
             f"Score: {self.state.score // 100}", True, C.WHITE
         )
         self.screen.blit(score, (10, 10))
-        pg.display.flip()
 
     # ----------------------------
     # CRASH BLOCK                         Logic & UI
