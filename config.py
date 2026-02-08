@@ -12,3 +12,10 @@ class Settings:
     RED = (220, 50, 50)
     BLUE = (40, 160, 255)
     YELLOW = (255, 220, 40)
+
+    LANES = 3
+    LANE_WIDTH = WIDTH / LANES
+    CAR_WIDTH = int(WIDTH / (LANES * 1.3))
+    CAR_HEIGHT = int(CAR_WIDTH * 1.4)
+    MAX_ENEMIES = int(LANES * 0.6)
+

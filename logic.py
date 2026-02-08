@@ -46,9 +46,8 @@ class Game:
         self.player_img = am.load_player(C.RED)
         self.enemy_img = am.load_player(C.BLUE)
         self.explosion_img = am.load_explosion()
-
-        self.car_w = C.WIDTH // 4.4
-        self.car_h = int(self.car_w * 1.4)
+        self.player_img = pg.transform.smoothscale(self.player_img, (C.CAR_WIDTH, C.CAR_HEIGHT))
+        self.enemy_img = pg.transform.smoothscale(self.enemy_img, (C.CAR_WIDTH, C.CAR_HEIGHT))
 
     # ----------------------------
     # RESET BLOCK
@@ -60,10 +59,10 @@ class Game:
         self.reset_road()
 
     def reset_player(self):
-        self.player = Player(self.player_img, self.car_w)
+        self.player = Player(self.player_img)
 
     def reset_enemies(self):
-        self.enemies = ObstacleManager(self.enemy_img, self.car_w, self.car_h)
+        self.enemies = ObstacleManager(self.enemy_img,)
 
     def reset_road(self):
         self.road = Road(self.road_img)
