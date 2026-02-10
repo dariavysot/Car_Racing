@@ -13,20 +13,30 @@ class GameConfig:
             help="Player car color"
         )
 
+        parser.add_argument(
+            "--players",
+            type=int,
+            choices=[1, 2],
+            default=1,
+            help="Number players (1 or 2)"
+        )
+
         args = parser.parse_args()
         GameConfig.apply(args)
 
     @staticmethod
     def apply(args):
         # color
-        if args.car_color == "red":
-            C.PLAYER_COLOR = C.RED
-        elif args.car_color == "blue":
-            C.PLAYER_COLOR = C.BLUE
-        elif args.car_color == "yellow":
-            C.PLAYER_COLOR = C.YELLOW
-        elif args.car_color == "purple":
-            C.PLAYER_COLOR = C.PURPLE
-        elif args.car_color == "green":
-            C.PLAYER_COLOR = C.GREEN
+        color_map = {
+            "red": C.RED,
+            "blue": C.BLUE,
+            "yellow": C.YELLOW,
+            "purple": C.PURPLE,
+            "green": C.GREEN,
+        }
+
+        C.PLAYER_COLOR = color_map[args.car_color]
+
+        # number of players
+        C.NUM_PLAYERS = args.players           
         
