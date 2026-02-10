@@ -43,7 +43,7 @@ class Game:
     def load_assets(self):
         am = AssetManager
         self.road_img = am.load_road()      # Core & Player
-        self.player_img = am.load_player(C.RED)   # Core & Player
+        self.player_img = AssetManager.load_player(C.PLAYER_COLOR)   # Core & Player
         self.enemy_img = am.load_player(C.BLUE)   # Obstacles & Math
         self.explosion_img = am.load_explosion()  # Logic & UI
 
