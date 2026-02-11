@@ -11,7 +11,7 @@ from state import GameState
 from managers.asset_manager import AssetManager
 from managers.obstacle_manager import ObstacleManager
 from entities.road import Road
-from entities.player import Player
+from entities.player import PlayerCar
 
 class Game:
     def __init__(self):
@@ -42,10 +42,10 @@ class Game:
     # ----------------------------
     def load_assets(self):
         am = AssetManager
-        self.road_img = am.load_road()
-        self.player_img = am.load_player(C.RED)
-        self.enemy_img = am.load_player(C.BLUE)
-        self.explosion_img = am.load_explosion()
+        self.road_img = am.load_road()      # Core & Player
+        self.player_img = AssetManager.load_player(C.PLAYER_COLOR)   # Core & Player
+        self.enemy_img = am.load_player(C.BLUE)   # Obstacles & Math
+        self.explosion_img = am.load_explosion()  # Logic & UI
 
         self.car_w = C.WIDTH // 4.4
         self.car_h = int(self.car_w * 1.4)
@@ -55,12 +55,12 @@ class Game:
     # ----------------------------
     def reset(self):
         self.state = GameState()
-        self.reset_player()
-        self.reset_enemies()
-        self.reset_road()
+        self.reset_player()                 # Core & Player
+        self.reset_enemies()                # Obstacles & Math
+        self.reset_road()                   # Core & Player
 
     def reset_player(self):
-        self.player = Player(self.player_img, self.car_w)
+        self.player = PlayerCar(self.player_img, self.car_w)
 
     def reset_enemies(self):
         self.enemies = ObstacleManager(self.enemy_img, self.car_w, self.car_h)
@@ -81,7 +81,7 @@ class Game:
 
         self.enemies.update()             # Obstacles & Math
 
-    def check_collisions(self):
+    def check_collisions(self):           # Logic & UI
         return self.enemies.check_collision(self.player.rect)
 
     # ----------------------------
@@ -90,22 +90,29 @@ class Game:
     def draw(self, dt):
         self.screen.fill(C.GRAY)
         self.road.draw(self.screen)
-        self.enemies.draw(self.screen)
-        self.player.draw(self.screen)
-        self.draw_score(dt)
+        self.enemies.draw(self.screen)    # Core & Player
+        self.player.draw(self.screen)     # Core & Player
+        self.draw_score(dt)               # Logic & UI
+
+        if self.state.paused:
+            paused_text = self.font_big.render("PAUSED", True, C.WHITE)
+            rect = paused_text.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2))
+            self.screen.blit(paused_text, rect)
+
+        pg.display.flip()  
 
     def draw_score(self, dt):
-        self.state.score += dt
-        self.state.difficulty += dt * 0.002 / 1000
+        if not self.state.paused:
+            self.state.score += dt
+            self.state.difficulty += dt * 0.002 / 1000
 
         score = self.font_small.render(
             f"Score: {self.state.score // 100}", True, C.WHITE
         )
         self.screen.blit(score, (10, 10))
-        pg.display.flip()
 
     # ----------------------------
-    # CRASH BLOCK
+    # CRASH BLOCK                         Logic & UI
     # ----------------------------
     def handle_crash(self, enemy_rect):
         self.show_explosion(enemy_rect)
@@ -140,7 +147,11 @@ class Game:
                     pg.quit()
                     sys.exit()
                 if e.type == pg.KEYDOWN:
-                    waiting = False
+                    if e.key == pg.K_ESCAPE:
+                        pg.quit()
+                        sys.exit()
+                    else:
+                        waiting = False
             self.clock.tick(30)
 
     # ----------------------------
@@ -156,14 +167,23 @@ class Game:
                 if e.type == pg.QUIT:
                     running = False
 
-            keys = pg.key.get_pressed()
-            self.update_objects(keys, dt, now)
-            crashed = self.check_collisions()
-            self.draw(dt)
+                if e.type == pg.KEYDOWN:
+                    if e.key == pg.K_SPACE:
+                        self.state.paused = not self.state.paused
+                    elif e.key == pg.K_ESCAPE:
+                        running = False
 
-            if crashed:
-                self.handle_crash(crashed)
-                self.reset()
+            keys = pg.key.get_pressed()
+
+            if not self.state.paused:
+                self.update_objects(keys, dt, now)
+
+                crashed = self.check_collisions()
+                if crashed:
+                    self.handle_crash(crashed)
+                    self.reset()
+
+            self.draw(dt)
 
         pg.quit()
         sys.exit()

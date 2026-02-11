@@ -12,3 +12,8 @@ class Settings:
     RED = (220, 50, 50)
     BLUE = (40, 160, 255)
     YELLOW = (255, 220, 40)
+    PURPLE = (160, 60, 255)
+    GREEN = (60, 200, 80)
+
+    PLAYER_COLOR = RED
+    NUM_PLAYERS = 1
