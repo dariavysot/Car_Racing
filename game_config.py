@@ -18,7 +18,7 @@ class GameConfig:
             type=int,
             choices=[1, 2],
             default=1,
-            help="Number players (1 or 2)"
+            help="Number of players (1 or 2)"
         )
 
         args = parser.parse_args()
