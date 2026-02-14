@@ -1,19 +1,21 @@
 import pygame as pg
 from config import Settings as C
+from core.game_object import GameObject
 
-class Player:
+class PlayerCar(GameObject):
     def __init__(self, image, car_w):
-        self.image = image
-        self.rect = image.get_rect(midbottom=(C.WIDTH // 2, C.HEIGHT - 50))
+        start_x = C.WIDTH // 2
+        start_y = C.HEIGHT - 50
+
+        super().__init__(image, start_x, start_y)
+
         self.car_w = car_w
+        self.speed = C.CAR_SPEED
 
     def update(self, keys):
         if keys[pg.K_LEFT]:
-            self.rect.x -= C.CAR_SPEED
+            self.rect.x -= self.speed
         if keys[pg.K_RIGHT]:
-            self.rect.x += C.CAR_SPEED
+            self.rect.x += self.speed
 
-        self.rect.x = max(0, min(C.WIDTH - self.car_w, self.rect.x))
-
-    def draw(self, screen):
-        screen.blit(self.image, self.rect)
+        self.rect.x = max(0, min(self.rect.x, C.WIDTH - self.car_w))
