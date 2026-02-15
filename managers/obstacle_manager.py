@@ -1,5 +1,7 @@
 import random
 from config import Settings as C
+from gameplay.collision import check_rect_collision
+
 
 class ObstacleManager:
     def __init__(self, image, car_w, car_h):
@@ -26,7 +28,7 @@ class ObstacleManager:
 
     def check_collision(self, player_rect):
         for r in self.enemies:
-            if player_rect.colliderect(r):
+            if check_rect_collision(player_rect, r):
                 return r
         return None
 
