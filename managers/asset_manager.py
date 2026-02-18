@@ -41,7 +41,16 @@ class AssetManager:
 
     @staticmethod
     def load_player(color):
-        return AssetManager.load_sprite("images/player.png", lambda: AssetManager.make_car_fallback(color))
+        img = AssetManager.load_sprite(
+            "images/player.png",
+            lambda: AssetManager.make_car_fallback(color)
+        )
+
+        return pg.transform.smoothscale(
+            img,
+            (C.CAR_WIDTH, C.CAR_HEIGHT)
+        )
+
 
     @staticmethod
     def load_explosion():

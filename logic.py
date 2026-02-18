@@ -43,29 +43,27 @@ class Game:
     def load_assets(self):
         am = AssetManager
         self.road_img = am.load_road()      # Core & Player
-        self.player_img = AssetManager.load_player(C.PLAYER_COLOR)   # Core & Player
+        self.player_img = am.load_player(C.PLAYER_COLOR)   # Core & Player
         self.enemy_img = am.load_player(C.BLUE)   # Obstacles & Math
         self.explosion_img = am.load_explosion()  # Logic & UI
 
-        self.car_w = C.WIDTH // 4.4
-        self.car_h = int(self.car_w * 1.4)
 
     # ----------------------------
     # RESET BLOCK
     # ----------------------------
     def reset(self):
         self.state = GameState()
-        self.reset_player()                 # Core & Player
         self.state.started = False
         self.state.paused = False
+        self.reset_player()                 # Core & Player
         self.reset_enemies()                # Obstacles & Math
         self.reset_road()                   # Core & Player
 
     def reset_player(self):
-        self.player = PlayerCar(self.player_img, self.car_w)
+        self.player = PlayerCar(self.player_img)
 
     def reset_enemies(self):
-        self.enemies = ObstacleManager(self.enemy_img, self.car_w, self.car_h)
+        self.enemies = ObstacleManager(self.enemy_img)
 
     def reset_road(self):
         self.road = Road(self.road_img)
