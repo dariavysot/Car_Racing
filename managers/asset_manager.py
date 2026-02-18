@@ -13,8 +13,17 @@ class AssetManager:
         return fallback_fn()
 
     @staticmethod
-    def make_car_fallback(color):
-        surf = pg.Surface((40, 60), pg.SRCALPHA)
+    def make_car_fallback(color_name):
+        color_map = {
+            "red": C.RED,
+            "blue": C.BLUE,
+            "yellow": C.YELLOW,
+            "purple": C.PURPLE,
+            "green": C.GREEN,
+            "orange": C.ORANGE,
+        }
+        color = color_map.get(color_name, C.RED)
+        surf = pg.Surface((C.CAR_WIDTH, C.CAR_HEIGHT), pg.SRCALPHA)
         pg.draw.rect(surf, color, surf.get_rect(), border_radius=10)
         return surf
 
@@ -41,16 +50,15 @@ class AssetManager:
         return pg.transform.smoothscale(img, (C.WIDTH, C.HEIGHT))
 
     @staticmethod
-    def load_player(color):
+    def load_player(color_name):
+        path = f"images/{color_name}_car.png"
+
         img = AssetManager.load_sprite(
-            "images/player.png",
-            lambda: AssetManager.make_car_fallback(color)
+            path,
+            lambda: AssetManager.make_car_fallback(color_name)
         )
 
-        return pg.transform.smoothscale(
-            img,
-            (C.CAR_WIDTH, C.CAR_HEIGHT)
-        )
+        return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.CAR_HEIGHT))
 
 
     @staticmethod

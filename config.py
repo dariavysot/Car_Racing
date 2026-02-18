@@ -14,12 +14,13 @@ class Settings:
     YELLOW = (255, 220, 40)
     PURPLE = (160, 60, 255)
     GREEN = (60, 200, 80)
+    ORANGE = (255, 140, 0)
 
     LANES = 3
     LANE_WIDTH = WIDTH // LANES
 
-    CAR_WIDTH = int(LANE_WIDTH * 0.3)
-    CAR_HEIGHT = int(CAR_WIDTH * 1.8)
+    CAR_WIDTH = int(LANE_WIDTH * 0.25)
+    CAR_HEIGHT = int(CAR_WIDTH * 1.9)
 
     PLAYER_COLOR = RED
     NUM_PLAYERS = 1
