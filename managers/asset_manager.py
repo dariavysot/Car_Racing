@@ -36,8 +36,9 @@ class AssetManager:
     # LOGIN.PY WRAPS
     # ----------------------------
     @staticmethod
-    def load_road():
-        return AssetManager.load_sprite("images/road.png", AssetManager.make_road_fallback)
+    def load_road(path="images/road.png"):
+        img = AssetManager.load_sprite(path, AssetManager.make_road_fallback)
+        return pg.transform.smoothscale(img, (C.WIDTH, C.HEIGHT))
 
     @staticmethod
     def load_player(color):
