@@ -130,7 +130,10 @@ class Game:
             (self.player.rect.centery + enemy_rect.centery) // 2
         )
 
-        self.screen.fill(C.GRAY)
+        self.road.draw(self.screen)
+        self.enemies.draw(self.screen)
+        self.player.draw(self.screen)
+
         expl = pg.transform.smoothscale(self.explosion_img, (120, 120))
         self.screen.blit(expl, expl.get_rect(center=mid))
         pg.display.flip()
