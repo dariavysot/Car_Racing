@@ -1,13 +1,17 @@
 from config import Settings as C
 
 class Obstacle:
-    def __init__(self, image, x, y, speed):
+    def __init__(self, image, lane, y, speed):
         self.image = image
-        self.rect = self.image.get_rect(topleft=(x, y))
-        self.speed = min(speed, C.MAX_SPEED)
+        self.lane = lane
+        self.speed = speed
 
-    def update(self):
-        self.rect.y += self.speed
+        x = C.LANE_WIDTH * lane + (C.LANE_WIDTH - C.CAR_WIDTH) // 2
+        self.rect = self.image.get_rect(topleft=(x, y))
+
+    def update(self, dt_sec):
+        px_per_sec = self.speed * C.FPS
+        self.rect.y += px_per_sec * dt_sec
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)

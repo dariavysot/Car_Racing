@@ -62,7 +62,7 @@ class Game:
         self.player = Player(self.player_img)
 
     def reset_enemies(self):
-        self.enemies = ObstacleManager(self.enemy_img,)
+        self.enemies = ObstacleManager(self.enemy_img)
 
     def reset_road(self):
         self.road = Road(self.road_img)
@@ -71,15 +71,21 @@ class Game:
     # UPDATE BLOCK
     # ----------------------------
     def update_objects(self, keys, dt, now):
-        self.player.update(keys)          # Core & Player
-        self.road.update()                # Core & Player
+
+        dt_sec = dt / 1000
+
+        self.player.update(keys)
+        self.road.update()
         self.state.update_difficulty()
 
         if now - self.state.last_spawn >= self.state.spawn_interval:
-            self.enemies.spawn(self.state.max_enemies)          # Obstacles & Math
+            self.enemies.spawn(
+                self.state.max_enemies,
+                self.state.speed
+            )
             self.state.last_spawn = now
 
-        self.enemies.update(self.state.speed)             # Obstacles & Math
+        self.enemies.update(self.state.speed, dt_sec)
 
     def check_collisions(self):
         return self.enemies.check_collision(self.player.rect)
@@ -115,10 +121,10 @@ class Game:
         self.show_game_over()
         self.wait_for_restart()
 
-    def show_explosion(self, enemy_rect):
+    def show_explosion(self, enemy):
         mid = (
-            (self.player.rect.centerx + enemy_rect.centerx) // 2,
-            (self.player.rect.centery + enemy_rect.centery) // 2
+            (self.player.rect.centerx + enemy.rect.centerx) // 2,
+            (self.player.rect.centery + enemy.rect.centery) // 2
         )
 
         expl = pg.transform.smoothscale(self.explosion_img, (120, 120))

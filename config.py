@@ -2,12 +2,13 @@ class Settings:
     WIDTH, HEIGHT = 480, 720
     FPS = 60
 
-    LANES = 5
+    LANES = 6
     LANE_WIDTH = WIDTH / LANES
     CAR_WIDTH = int(WIDTH / (LANES * 1.3))
     CAR_HEIGHT = int(CAR_WIDTH * 1.4)
 
-    CAR_SPEED = int(30 / LANES)
+    PLAYER_LANE_SPEED = int(30 / LANES)
+    PLAYER_Y = HEIGHT - 50
     ROAD_SCROLL = 10
 
     WHITE = (255, 255, 255)

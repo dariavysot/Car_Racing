@@ -14,5 +14,5 @@ class GameState:
 
     def update_difficulty(self):
         self.speed = 4.0 + math.log(self.time + 1, 4)
-        self.max_enemies = min(max(0.2, (self.time + 20) / 100), 0.6)
+        self.max_enemies = min(max(0.34, (self.time + 20) / 100), 0.67)
         self.spawn_interval = max(1400, 1800 - 10 * self.time)
