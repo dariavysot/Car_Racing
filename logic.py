@@ -73,12 +73,13 @@ class Game:
     def update_objects(self, keys, dt, now):
         self.player.update(keys)          # Core & Player
         self.road.update()                # Core & Player
+        self.state.update_difficulty()
 
-        if now - self.state.last_spawn >= C.SPAWN_INTERVAL:
-            self.enemies.spawn()          # Obstacles & Math
+        if now - self.state.last_spawn >= self.state.spawn_interval:
+            self.enemies.spawn(self.state.max_enemies)          # Obstacles & Math
             self.state.last_spawn = now
 
-        self.enemies.update()             # Obstacles & Math
+        self.enemies.update(self.state.speed)             # Obstacles & Math
 
     def check_collisions(self):
         return self.enemies.check_collision(self.player.rect)
@@ -94,13 +95,16 @@ class Game:
         self.draw_score(dt)
 
     def draw_score(self, dt):
-        self.state.score += dt
-        self.state.difficulty += dt * 0.002 / 1000
+        self.state.time += dt / 1000
 
         score = self.font_small.render(
-            f"Score: {self.state.score // 100}", True, C.WHITE
+            f"Score: {int(self.state.time * 10)}", True, C.WHITE
         )
+        # data = self.font_small.render(
+        #     f"Spawn: {self.state.spawn_interval}", True, C.WHITE
+        # )
         self.screen.blit(score, (10, 10))
+        # self.screen.blit(data, (10, 30))
         pg.display.flip()
 
     # ----------------------------
@@ -117,7 +121,6 @@ class Game:
             (self.player.rect.centery + enemy_rect.centery) // 2
         )
 
-        self.screen.fill(C.GRAY)
         expl = pg.transform.smoothscale(self.explosion_img, (120, 120))
         self.screen.blit(expl, expl.get_rect(center=mid))
         pg.display.flip()

@@ -1,5 +1,6 @@
 import random
 from config import Settings as C
+from state import GameState
 
 class ObstacleManager:
     def __init__(self, image):
@@ -11,15 +12,15 @@ class ObstacleManager:
             for i in range(C.LANES)
         ]
 
-    def spawn(self):
-        lanes = random.choices(self.lane_xpos, k=C.MAX_ENEMIES)
+    def spawn(self, max_enemies):
+        lanes = random.choices(self.lane_xpos, k=int(C.LANES * max_enemies))
         for l in lanes:
             rect = self.image.get_rect(topleft=(l, -C.CAR_HEIGHT))
             self.enemies.append(rect)
 
-    def update(self):
+    def update(self, base_speed):
         for r in self.enemies:
-            r.y += C.ENEMY_SPEED
+            r.y += base_speed
         self.enemies = [r for r in self.enemies if r.y < C.HEIGHT + C.CAR_HEIGHT]
 
     def check_collision(self, player_rect):
