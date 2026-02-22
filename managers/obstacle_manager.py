@@ -13,10 +13,7 @@ class ObstacleManager:
 
     def spawn(self):
         lane = random.choice(self.lane_xpos)
-
-        rect = self.image.get_rect()
-        rect.x = lane
-        rect.y = -rect.height
+        rect = self.image.get_rect(topleft=(lane, -C.CAR_HEIGHT))
 
         self.enemies.append(rect)
 
