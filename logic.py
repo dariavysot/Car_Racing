@@ -43,27 +43,27 @@ class Game:
     def load_assets(self):
         am = AssetManager
         self.road_img = am.load_road()      # Core & Player
-        self.player_img = AssetManager.load_player(C.PLAYER_COLOR)   # Core & Player
+        self.player_img = am.load_player(C.PLAYER_COLOR)   # Core & Player
         self.enemy_img = am.load_player(C.BLUE)   # Obstacles & Math
         self.explosion_img = am.load_explosion()  # Logic & UI
 
-        self.car_w = C.WIDTH // 4.4
-        self.car_h = int(self.car_w * 1.4)
 
     # ----------------------------
     # RESET BLOCK
     # ----------------------------
     def reset(self):
         self.state = GameState()
+        self.state.started = False
+        self.state.paused = False
         self.reset_player()                 # Core & Player
         self.reset_enemies()                # Obstacles & Math
         self.reset_road()                   # Core & Player
 
     def reset_player(self):
-        self.player = PlayerCar(self.player_img, self.car_w)
+        self.player = PlayerCar(self.player_img)
 
     def reset_enemies(self):
-        self.enemies = ObstacleManager(self.enemy_img, self.car_w, self.car_h)
+        self.enemies = ObstacleManager(self.enemy_img)
 
     def reset_road(self):
         self.road = Road(self.road_img)
@@ -99,10 +99,15 @@ class Game:
             rect = paused_text.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2))
             self.screen.blit(paused_text, rect)
 
+        if not self.state.started:
+            start_text = self.font_big.render("Press SPACE to start", True, C.WHITE)
+            rect = start_text.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2))
+            self.screen.blit(start_text, rect)
+
         pg.display.flip()  
 
     def draw_score(self, dt):
-        if not self.state.paused:
+        if self.state.started and not self.state.paused:
             self.state.score += dt
             self.state.difficulty += dt * 0.002 / 1000
 
@@ -125,7 +130,10 @@ class Game:
             (self.player.rect.centery + enemy_rect.centery) // 2
         )
 
-        self.screen.fill(C.GRAY)
+        self.road.draw(self.screen)
+        self.enemies.draw(self.screen)
+        self.player.draw(self.screen)
+
         expl = pg.transform.smoothscale(self.explosion_img, (120, 120))
         self.screen.blit(expl, expl.get_rect(center=mid))
         pg.display.flip()
@@ -169,13 +177,16 @@ class Game:
 
                 if e.type == pg.KEYDOWN:
                     if e.key == pg.K_SPACE:
-                        self.state.paused = not self.state.paused
+                        if not self.state.started:
+                            self.state.started = True
+                        else:
+                            self.state.paused = not self.state.paused
                     elif e.key == pg.K_ESCAPE:
                         running = False
 
             keys = pg.key.get_pressed()
 
-            if not self.state.paused:
+            if self.state.started and not self.state.paused:
                 self.update_objects(keys, dt, now)
 
                 crashed = self.check_collisions()

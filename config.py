@@ -3,8 +3,8 @@ class Settings:
     FPS = 60
 
     CAR_SPEED = 10
-    ROAD_SCROLL = 10
-    ENEMY_SPEED = 6
+    ROAD_SCROLL = 6
+    ENEMY_SPEED = 4
     SPAWN_INTERVAL = 1400
 
     WHITE = (255, 255, 255)
@@ -14,6 +14,13 @@ class Settings:
     YELLOW = (255, 220, 40)
     PURPLE = (160, 60, 255)
     GREEN = (60, 200, 80)
+    ORANGE = (255, 140, 0)
+
+    LANES = 3
+    LANE_WIDTH = WIDTH // LANES
+
+    CAR_WIDTH = int(LANE_WIDTH * 0.25)
+    CAR_HEIGHT = int(CAR_WIDTH * 1.9)
 
     PLAYER_COLOR = RED
     NUM_PLAYERS = 1
