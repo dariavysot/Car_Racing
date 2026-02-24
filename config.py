@@ -4,8 +4,11 @@ class Settings:
 
     LANES = 6
     LANE_WIDTH = WIDTH / LANES
+
     CAR_WIDTH = int(WIDTH / (LANES * 1.3))
     CAR_HEIGHT = int(CAR_WIDTH * 1.4)
+
+    TRACK_HEIGHT = int(CAR_HEIGHT * 1.5)
 
     PLAYER_LANE_SPEED = int(30 / LANES)
     PLAYER_Y = HEIGHT - 50

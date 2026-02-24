@@ -1,12 +1,18 @@
 import random
+import pygame as pg
 from config import Settings as C
 from entities.obstacle import Obstacle
 
+class TrafficType:
+    SAME = "SAME"
+    OPPOSITE = "OPPOSITE"
 
 class ObstacleManager:
 
-    def __init__(self, image):
-        self.image = image
+    def __init__(self, car_images, track_images):
+        self.car_images = car_images
+        self.track_images = track_images
+
         self.obstacles = []
 
         self.reachable_min = 0
@@ -14,6 +20,20 @@ class ObstacleManager:
 
         self.horizon = 2.0
         self.sim_dt = 0.05
+
+        self.images = {}
+        self.images["CAR"] = self.car_images
+        self.images["TRACK"] = self.track_images
+
+        self.speed_groups = {
+            TrafficType.SAME: (0.6, 0.9),      # 60–90%
+            TrafficType.OPPOSITE: (1.1, 1.4)   # 110–150%
+        }
+
+    def get_lane_type(self, lane):
+        if lane % 2 == 0:
+            return TrafficType.SAME
+        return TrafficType.OPPOSITE
     
     def is_spawn_safe(self, candidates, base_speed):
 
@@ -59,7 +79,7 @@ class ObstacleManager:
     def spawn(self, max_enemies, base_speed=None):
 
         if base_speed is None:
-            base_speed = 6
+            base_speed = 360
 
         attempts = 0
 
@@ -75,14 +95,22 @@ class ObstacleManager:
             candidates = []
 
             for lane in lanes:
-                speed_variation = random.uniform(0.75, 1.25)
-                speed = base_speed * speed_variation
+                
+                lane_type = self.get_lane_type(lane)
+                mult_min, mult_max = self.speed_groups[lane_type]
+                speed = base_speed * random.uniform(mult_min, mult_max)
+
+                obstacle_type = random.choices(["CAR", "TRACK"], [0.75, 0.25], k=1)[0]
+                image = random.choices(self.images[obstacle_type], k=1)[0]
+                if lane_type == TrafficType.OPPOSITE:
+                    image = pg.transform.flip(image, False, True)
 
                 obstacle = Obstacle(
-                    self.image,
+                    image,
                     lane,
-                    - C.HEIGHT / 4,
-                    speed
+                    - C.HEIGHT / 2,
+                    speed,
+                    obstacle_type=obstacle_type
                 )
                 candidates.append(obstacle)
 
