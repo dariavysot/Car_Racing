@@ -141,6 +141,17 @@ class Game:
         press = self.font_small.render("Press any key to restart", True, C.WHITE)
         self.screen.blit(game_over, game_over.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2 - 30)))
         self.screen.blit(press, press.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2 + 20)))
+        # --- High Score ---
+        hs_text = self.font_small.render(
+            f"High Score: {self.highscore.value}",
+            True,
+            C.YELLOW
+        )
+
+        self.screen.blit(
+            hs_text,
+            hs_text.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2 + 60))
+        )
         pg.display.flip()
 
     def wait_for_restart(self):
