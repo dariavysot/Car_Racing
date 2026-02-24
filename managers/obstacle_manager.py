@@ -23,11 +23,11 @@ class ObstacleManager:
 
         self.images = {}
         self.images["CAR"] = self.car_images
-        self.images["TRACK"] = self.track_images
+        self.images["TRUCK"] = self.track_images
 
         self.speed_groups = {
-            TrafficType.SAME: (0.6, 0.9),      # 60–90%
-            TrafficType.OPPOSITE: (1.1, 1.4)   # 110–150%
+            TrafficType.SAME: (0.6, 0.8),      # 70–90%
+            TrafficType.OPPOSITE: (1.2, 1.4)   # 110–150%
         }
 
     def get_lane_type(self, lane):
@@ -100,7 +100,7 @@ class ObstacleManager:
                 mult_min, mult_max = self.speed_groups[lane_type]
                 speed = base_speed * random.uniform(mult_min, mult_max)
 
-                obstacle_type = random.choices(["CAR", "TRACK"], [0.75, 0.25], k=1)[0]
+                obstacle_type = random.choices(["CAR", "TRUCK"], [0.75, 0.25], k=1)[0]
                 image = random.choices(self.images[obstacle_type], k=1)[0]
                 if lane_type == TrafficType.OPPOSITE:
                     image = pg.transform.flip(image, False, True)
@@ -109,8 +109,7 @@ class ObstacleManager:
                     image,
                     lane,
                     - C.HEIGHT / 2,
-                    speed,
-                    obstacle_type=obstacle_type
+                    speed
                 )
                 candidates.append(obstacle)
 
@@ -120,7 +119,7 @@ class ObstacleManager:
 
             attempts += 1
 
-    def update(self, base_speed, dt_sec):
+    def update(self, dt_sec):
 
         for o in self.obstacles:
             o.update(dt_sec)
