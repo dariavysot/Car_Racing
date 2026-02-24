@@ -5,6 +5,7 @@
 import os
 import sys
 import pygame as pg
+from storage.highscore import HighScore
 
 from config import Settings as C
 from state import GameState
@@ -20,6 +21,7 @@ class Game:
         self.init_fonts()
         self.load_assets()
         self.reset()
+        self.highscore = HighScore()
 
     # ----------------------------
     # INIT BLOCK
@@ -117,6 +119,8 @@ class Game:
     def handle_crash(self, enemy_rect):
         self.show_explosion(enemy_rect)
         self.show_game_over()
+        final_score = self.state.score // 100
+        self.highscore.save_if_better(final_score)
         self.wait_for_restart()
 
     def show_explosion(self, enemy_rect):
