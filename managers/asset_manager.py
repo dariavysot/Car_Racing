@@ -13,8 +13,17 @@ class AssetManager:
         return fallback_fn()
 
     @staticmethod
-    def make_car_fallback(color):
-        surf = pg.Surface((40, 60), pg.SRCALPHA)
+    def make_car_fallback(color_name):
+        color_map = {
+            "red": C.RED,
+            "blue": C.BLUE,
+            "yellow": C.YELLOW,
+            "purple": C.PURPLE,
+            "green": C.GREEN,
+            "orange": C.ORANGE,
+        }
+        color = color_map.get(color_name, C.RED)
+        surf = pg.Surface((C.CAR_WIDTH, C.CAR_HEIGHT), pg.SRCALPHA)
         pg.draw.rect(surf, color, surf.get_rect(), border_radius=10)
         return surf
 
@@ -36,12 +45,40 @@ class AssetManager:
     # LOGIN.PY WRAPS
     # ----------------------------
     @staticmethod
-    def load_road():
-        return AssetManager.load_sprite("images/road.png", AssetManager.make_road_fallback)
+    def load_road(path="images/road.png"):
+        img = AssetManager.load_sprite(path, AssetManager.make_road_fallback)
+        return pg.transform.smoothscale(img, (C.WIDTH, C.HEIGHT))
 
     @staticmethod
-    def load_player(color):
-        return AssetManager.load_sprite("images/player.png", lambda: AssetManager.make_car_fallback(color))
+    def load_car(color_name):
+        path = f"images/{color_name}_car.png"
+
+        img = AssetManager.load_sprite(
+            path,
+            lambda: AssetManager.make_car_fallback(color_name)
+        )
+
+        return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.CAR_HEIGHT))
+
+    def load_taxi():
+        path = f"images/taxi.png"
+
+        img = AssetManager.load_sprite(
+            path,
+            lambda: AssetManager.make_car_fallback("yellow")
+        )
+
+        return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.CAR_HEIGHT))
+
+    def load_truck(num):
+        path = f"images/truck_{num}.png"
+
+        img = AssetManager.load_sprite(
+            path,
+            lambda: AssetManager.make_car_fallback("green")
+        )
+
+        return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.TRUCK_HEIGHT))
 
     @staticmethod
     def load_explosion():
