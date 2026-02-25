@@ -140,9 +140,9 @@ class Game:
     # ----------------------------
     def handle_crash(self, enemy_rect):
         self.show_explosion(enemy_rect)
-        self.show_game_over()
-        final_score = self.state.score // 100
+        final_score = int(self.state.time * 10)
         self.highscore.save_if_better(final_score)
+        self.show_game_over()
         self.wait_for_restart()
 
     def show_explosion(self, enemy):
