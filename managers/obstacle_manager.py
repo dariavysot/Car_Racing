@@ -54,8 +54,7 @@ class ObstacleManager:
             blocked_lanes = set()
 
             for o in sim_obstacles:
-                speed_px_sec = o.speed * C.FPS
-                future_y = o.rect.y + speed_px_sec * t
+                future_y = o.rect.y + o.speed * t
 
                 if abs(future_y - C.PLAYER_Y) < C.CAR_HEIGHT:
                     blocked_lanes.add(o.lane)

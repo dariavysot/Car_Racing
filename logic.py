@@ -83,7 +83,7 @@ class Game:
     def update_objects(self, keys, dt, now):
         dt_sec = dt / 1000
         self.state.time += dt_sec
-        self.player.update(keys)
+        self.player.update(keys, dt_sec)
         self.road.update(dt_sec, self.state.speed)
         self.state.update_difficulty()
 

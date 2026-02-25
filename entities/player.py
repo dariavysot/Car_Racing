@@ -10,10 +10,10 @@ class PlayerCar(GameObject):
         super().__init__(image, start_x, start_y)
         self.speed = C.PLAYER_LANE_SPEED
 
-    def update(self, keys):
+    def update(self, keys, dt_sec):
         if keys[pg.K_LEFT]:
-            self.rect.x -= self.speed
+            self.rect.x -= self.speed * dt_sec
         if keys[pg.K_RIGHT]:
-            self.rect.x += self.speed
+            self.rect.x += self.speed * dt_sec
 
         self.rect.x = max(0, min(self.rect.x, C.WIDTH - self.rect.width))

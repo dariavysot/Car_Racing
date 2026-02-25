@@ -10,7 +10,7 @@ class Settings:
 
     TRUCK_HEIGHT = int(CAR_WIDTH * 2.4)
 
-    PLAYER_LANE_SPEED = int(30 / LANES)
+    PLAYER_LANE_SPEED = int(1800 / LANES)
     PLAYER_Y = int(HEIGHT - CAR_HEIGHT / 2) - 15
 
     WHITE = (255, 255, 255)
