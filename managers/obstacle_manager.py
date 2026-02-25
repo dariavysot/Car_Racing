@@ -46,7 +46,7 @@ class ObstacleManager:
 
         while t < self.horizon:
 
-            max_shift = t * 6
+            max_shift = t * C.PLAYER_LANE_SPEED
 
             cur_min = max(0, reachable_min - max_shift)
             cur_max = min(C.LANES - 1, reachable_max + max_shift)
