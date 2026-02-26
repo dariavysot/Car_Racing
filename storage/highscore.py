@@ -19,3 +19,5 @@ class HighScore:
             self.value = score
             with open(self.filepath, "w") as f:
                 f.write(str(score))
+            return True
+        return False

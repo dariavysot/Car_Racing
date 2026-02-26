@@ -141,7 +141,7 @@ class Game:
     def handle_crash(self, enemy_rect):
         self.show_explosion(enemy_rect)
         final_score = int(self.state.time * 10)
-        self.highscore.save_if_better(final_score)
+        self.is_new_record = self.highscore.save_if_better(final_score)
         self.show_game_over()
         self.wait_for_restart()
 
@@ -162,21 +162,21 @@ class Game:
 
 
     def show_game_over(self):
-        game_over = self.font_big.render("GAME OVER", True, C.WHITE)
-        press = self.font_small.render("Press any key to restart", True, C.WHITE)
-        self.screen.blit(game_over, game_over.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2 - 30)))
-        self.screen.blit(press, press.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2 + 20)))
-        # --- High Score ---
-        hs_text = self.font_small.render(
-            f"High Score: {self.highscore.value}",
-            True,
-            C.YELLOW
-        )
+        cx, cy = C.WIDTH // 2, C.HEIGHT // 2
 
-        self.screen.blit(
-            hs_text,
-            hs_text.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2 + 60))
-        )
+        game_over = self.font_big.render("GAME OVER", True, C.WHITE)
+        self.screen.blit(game_over, game_over.get_rect(center=(cx, cy - 100)))
+
+        if getattr(self, 'is_new_record', False):
+            record_text = self.font_big.render("NEW RECORD!", True, (255, 215, 0))
+            self.screen.blit(record_text, record_text.get_rect(center=(cx, cy)))
+
+        hs_text = self.font_small.render(f"High Score: {self.highscore.value}", True, C.YELLOW)
+        self.screen.blit(hs_text, hs_text.get_rect(center=(cx, cy + 60)))
+
+        press = self.font_small.render("Press any key to restart", True, C.WHITE)
+        self.screen.blit(press, press.get_rect(center=(cx, cy + 120)))
+
         pg.display.flip()
 
     def wait_for_restart(self):
