@@ -34,8 +34,8 @@ class TwoPlayersGame:
         self.road = Road(self.road_img)
         self.enemies = ObstacleManager(self.car_images, self.truck_images)
 
-        player1_img = AssetManager.load_car("blue")
-        player2_img = AssetManager.load_car("red")
+        player1_img = AssetManager.load_car(C.PLAYER1_COLOR)
+        player2_img = AssetManager.load_car(C.PLAYER2_COLOR)
 
         player1_img = pg.transform.smoothscale(
             player1_img,
