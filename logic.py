@@ -42,10 +42,19 @@ class Game:
     # ----------------------------
     def load_assets(self):
         am = AssetManager
-        self.road_img = am.load_road()      # Core & Player
-        self.player_img = am.load_player(C.PLAYER_COLOR)   # Core & Player
-        self.enemy_img = am.load_player(C.BLUE)   # Obstacles & Math
-        self.explosion_img = am.load_explosion()  # Logic & UI
+        self.road_img = am.load_road()
+        self.player_img = am.load_car(C.PLAYER_COLOR)
+        self.explosion_img = am.load_explosion()
+        self.player_img = pg.transform.smoothscale(self.player_img, (C.CAR_WIDTH, C.CAR_HEIGHT))
+        self.car_images = []
+        self.truck_images = []
+        colors = ["red", "blue", "yellow", "orange", "purple", "green"]
+        for color in colors:
+            if color != C.PLAYER_COLOR:
+                self.car_images.append(am.load_car(color))
+        self.car_images.append(am.load_taxi())
+        for num in range(2):
+            self.truck_images.append(am.load_truck(num))
 
 
     # ----------------------------
@@ -63,7 +72,7 @@ class Game:
         self.player = PlayerCar(self.player_img)
 
     def reset_enemies(self):
-        self.enemies = ObstacleManager(self.enemy_img)
+        self.enemies = ObstacleManager(self.car_images, self.truck_images)
 
     def reset_road(self):
         self.road = Road(self.road_img)
@@ -72,14 +81,20 @@ class Game:
     # UPDATE BLOCK
     # ----------------------------
     def update_objects(self, keys, dt, now):
-        self.player.update(keys)          # Core & Player
-        self.road.update()                # Core & Player
+        dt_sec = dt / 1000
+        self.state.time += dt_sec
+        self.player.update(keys)
+        self.road.update(dt_sec, self.state.speed)
+        self.state.update_difficulty()
 
-        if now - self.state.last_spawn >= C.SPAWN_INTERVAL:
-            self.enemies.spawn()          # Obstacles & Math
+        if now - self.state.last_spawn >= self.state.spawn_interval:
+            self.enemies.spawn(
+                self.state.max_enemies,
+                self.state.speed
+            )
             self.state.last_spawn = now
 
-        self.enemies.update()             # Obstacles & Math
+        self.enemies.update(dt_sec)
 
     def check_collisions(self):           # Logic & UI
         return self.enemies.check_collision(self.player.rect)
@@ -107,14 +122,16 @@ class Game:
         pg.display.flip()  
 
     def draw_score(self, dt):
-        if self.state.started and not self.state.paused:
-            self.state.score += dt
-            self.state.difficulty += dt * 0.002 / 1000
-
         score = self.font_small.render(
-            f"Score: {self.state.score // 100}", True, C.WHITE
+            f"Score: {int(self.state.time * 10)}", True, C.WHITE
         )
+
+        # data = self.font_small.render(
+        #     f"Spawn: {self.state.spawn_interval}", True, C.WHITE
+        # )
+
         self.screen.blit(score, (10, 10))
+        # self.screen.blit(data, (10, 30))
 
     # ----------------------------
     # CRASH BLOCK                         Logic & UI
@@ -124,10 +141,10 @@ class Game:
         self.show_game_over()
         self.wait_for_restart()
 
-    def show_explosion(self, enemy_rect):
+    def show_explosion(self, enemy):
         mid = (
-            (self.player.rect.centerx + enemy_rect.centerx) // 2,
-            (self.player.rect.centery + enemy_rect.centery) // 2
+            (self.player.rect.centerx + enemy.rect.centerx) // 2,
+            (self.player.rect.centery + enemy.rect.centery) // 2
         )
 
         self.road.draw(self.screen)
@@ -183,6 +200,7 @@ class Game:
                             self.state.paused = not self.state.paused
                     elif e.key == pg.K_ESCAPE:
                         running = False
+
 
             keys = pg.key.get_pressed()
 

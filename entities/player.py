@@ -5,10 +5,10 @@ from core.game_object import GameObject
 class PlayerCar(GameObject):
     def __init__(self, image):
         start_x = C.WIDTH // 2
-        start_y = C.HEIGHT - 50
+        start_y = C.PLAYER_Y
 
         super().__init__(image, start_x, start_y)
-        self.speed = C.CAR_SPEED
+        self.speed = C.PLAYER_LANE_SPEED
 
     def update(self, keys):
         if keys[pg.K_LEFT]:

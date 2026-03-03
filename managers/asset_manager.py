@@ -50,7 +50,7 @@ class AssetManager:
         return pg.transform.smoothscale(img, (C.WIDTH, C.HEIGHT))
 
     @staticmethod
-    def load_player(color_name):
+    def load_car(color_name):
         path = f"images/{color_name}_car.png"
 
         img = AssetManager.load_sprite(
@@ -60,6 +60,25 @@ class AssetManager:
 
         return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.CAR_HEIGHT))
 
+    def load_taxi():
+        path = f"images/taxi.png"
+
+        img = AssetManager.load_sprite(
+            path,
+            lambda: AssetManager.make_car_fallback("yellow")
+        )
+
+        return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.CAR_HEIGHT))
+
+    def load_truck(num):
+        path = f"images/truck_{num}.png"
+
+        img = AssetManager.load_sprite(
+            path,
+            lambda: AssetManager.make_car_fallback("green")
+        )
+
+        return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.TRUCK_HEIGHT))
 
     @staticmethod
     def load_explosion():
