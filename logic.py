@@ -10,6 +10,7 @@ from config import Settings as C
 from state import GameState
 from managers.asset_manager import AssetManager
 from managers.obstacle_manager import ObstacleManager
+from managers.theme_manager import ThemeManager
 from entities.road import Road
 from entities.player import PlayerCar
 
@@ -19,6 +20,7 @@ class Game:
         self.init_screen()
         self.init_fonts()
         self.load_assets()
+        self.init_managers()
         self.reset()
 
     # ----------------------------
@@ -37,6 +39,9 @@ class Game:
         self.font_big = pg.font.SysFont("arial", 40, bold=True)
         self.font_small = pg.font.SysFont("arial", 24, bold=True)
 
+    def init_managers(self):
+        self.theme = ThemeManager()
+
     # ----------------------------
     # ASSETS BLOCK
     # ----------------------------
@@ -46,6 +51,7 @@ class Game:
         self.player_img = am.load_car(C.PLAYER_COLOR)
         self.explosion_img = am.load_explosion()
         self.player_img = pg.transform.smoothscale(self.player_img, (C.CAR_WIDTH, C.CAR_HEIGHT))
+
         self.car_images = []
         self.truck_images = []
         colors = ["red", "blue", "yellow", "orange", "purple", "green"]
@@ -95,6 +101,7 @@ class Game:
             self.state.last_spawn = now
 
         self.enemies.update(dt_sec)
+        self.theme.update(dt)
 
     def check_collisions(self):           # Logic & UI
         return self.enemies.check_collision(self.player.rect)
@@ -105,9 +112,14 @@ class Game:
     def draw(self, dt):
         self.screen.fill(C.GRAY)
         self.road.draw(self.screen)
-        self.enemies.draw(self.screen)    # Core & Player
-        self.player.draw(self.screen)     # Core & Player
-        self.draw_score(dt)               # Logic & UI
+
+        for enemy in self.enemies.obstacles:
+            enemy.draw_with_light(self.screen, self.theme.is_night)
+
+        self.player.draw_with_light(self.screen, self.theme.is_night)
+
+        self.theme.apply(self.screen)
+        self.draw_score(dt)
 
         if self.state.paused:
             paused_text = self.font_big.render("PAUSED", True, C.WHITE)
@@ -148,8 +160,9 @@ class Game:
         )
 
         self.road.draw(self.screen)
-        self.enemies.draw(self.screen)
-        self.player.draw(self.screen)
+        for e in self.enemies.obstacles:
+            e.draw_with_light(self.screen, self.theme.is_night)
+        self.player.draw_with_light(self.screen, self.theme.is_night)
 
         expl = pg.transform.smoothscale(self.explosion_img, (120, 120))
         self.screen.blit(expl, expl.get_rect(center=mid))

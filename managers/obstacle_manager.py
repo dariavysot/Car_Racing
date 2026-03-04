@@ -135,6 +135,6 @@ class ObstacleManager:
                 return o
         return None
 
-    def draw(self, screen):
+    def draw(self, screen, is_night):
         for o in self.obstacles:
-            o.draw(screen)
+            o.draw_with_light(screen, is_night)

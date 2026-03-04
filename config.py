@@ -5,8 +5,8 @@ class Settings:
     LANES = 6
     LANE_WIDTH = WIDTH / LANES
 
-    CAR_WIDTH = int(WIDTH / (LANES * 1.4))
-    CAR_HEIGHT = int(CAR_WIDTH * 1.7)
+    CAR_WIDTH = int(WIDTH / (LANES * 1.6))
+    CAR_HEIGHT = int(CAR_WIDTH * 2)
 
     TRUCK_HEIGHT = int(CAR_WIDTH * 2.4)
 
