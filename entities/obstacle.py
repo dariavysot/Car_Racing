@@ -3,9 +3,10 @@ from core.game_object import GameObject
 from config import Settings as C
 
 class Obstacle(GameObject):
-    def __init__(self, image, lane, y, speed):
+    def __init__(self, image, lane, y, speed, direction="SAME"):
         self.lane = lane
         self.speed = speed
+        self.direction = direction
         x = C.LANE_WIDTH * lane + C.LANE_WIDTH // 2
         super().__init__(image, x, y)
 
@@ -24,34 +25,27 @@ class Obstacle(GameObject):
         if not is_night:
             return
 
+        # --- DRAWING THE HEADLIGHTS  ---
         light_height = 220
         top_width = int(self.rect.width * 0.6)
         bottom_width = int(self.rect.width * 1.6)
-
+        
         light_surf = pg.Surface((bottom_width, light_height), pg.SRCALPHA)
-
         center_x = bottom_width // 2
+
+        main_color = (255, 255, 255)
 
         for y in range(light_height):
             progress = y / light_height
-
+            alpha = int(120 * (1 - progress) ** 2)
             current_width = top_width + (bottom_width - top_width) * progress
+            
+            pg.draw.line(light_surf, (*main_color, alpha), 
+                         (int(center_x - current_width/2), light_height - y), 
+                         (int(center_x + current_width/2), light_height - y))
 
-            alpha = int(90 * (1 - progress) ** 2)
-
-            x1 = int(center_x - current_width / 2)
-            x2 = int(center_x + current_width / 2)
-
-            # малюємо знизу вгору
-            pg.draw.line(
-                light_surf,
-                (255, 255, 200, alpha),
-                (x1, light_height - y),
-                (x2, light_height - y)
-            )
-
-        screen.blit(
-            light_surf,
-            (self.rect.centerx - bottom_width // 2,
-            self.rect.top - light_height + 5)
-        )
+        if self.direction == "OPPOSITE":
+            light_surf = pg.transform.flip(light_surf, False, True)
+            screen.blit(light_surf, (self.rect.centerx - bottom_width // 2, self.rect.bottom - 5))
+        else:
+            screen.blit(light_surf, (self.rect.centerx - bottom_width // 2, self.rect.top - light_height + 5))

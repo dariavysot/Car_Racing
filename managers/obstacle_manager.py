@@ -109,7 +109,8 @@ class ObstacleManager:
                     image,
                     lane,
                     - C.HEIGHT / 2,
-                    speed
+                    speed,
+                    direction=lane_type
                 )
                 candidates.append(obstacle)
 
