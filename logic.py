@@ -116,11 +116,16 @@ class Game:
         self.road.draw(self.screen)
 
         for enemy in self.enemies.obstacles:
-            enemy.draw_with_light(self.screen, self.theme.is_night)
-
-        self.player.draw_with_light(self.screen, self.theme.is_night)
+            enemy.draw(self.screen)
+        self.player.draw(self.screen)
 
         self.theme.apply(self.screen)
+
+        for enemy in self.enemies.obstacles:
+            enemy.draw_only_light(self.screen, self.theme.is_night)
+        
+        self.player.draw_only_light(self.screen, self.theme.is_night)
+    
         self.draw_score(dt)
 
         if self.state.paused:
@@ -162,11 +167,14 @@ class Game:
         )
 
         self.road.draw(self.screen)
-        for e in self.enemies.obstacles:
-            e.draw_with_light(self.screen, self.theme.is_night)
-        self.player.draw_with_light(self.screen, self.theme.is_night)
 
+        for e in self.enemies.obstacles: e.draw(self.screen)
+        self.player.draw(self.screen)
+        
         self.theme.apply(self.screen)
+
+        for e in self.enemies.obstacles: e.draw_only_light(self.screen, self.theme.is_night)
+        self.player.draw_only_light(self.screen, self.theme.is_night)
 
         expl = pg.transform.smoothscale(self.explosion_img, (120, 120))
         self.screen.blit(expl, expl.get_rect(center=mid))

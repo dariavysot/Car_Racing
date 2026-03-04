@@ -18,8 +18,10 @@ class PlayerCar(GameObject):
 
         self.rect.x = max(0, min(self.rect.x, C.WIDTH - self.rect.width))
 
-    def draw_with_light(self, screen, is_night):
-        self.draw(screen)
+    def draw(self, screen):
+        super().draw(screen)
+
+    def draw_only_light(self, screen, is_night):
 
         if not is_night:
             return
@@ -43,7 +45,7 @@ class PlayerCar(GameObject):
 
             pg.draw.line(
                 light_surf,
-                (255, 255, 255, alpha),
+                (255, 255, 200, alpha),
                 (x1, light_height - y),
                 (x2, light_height - y)
             )
@@ -65,6 +67,6 @@ class PlayerCar(GameObject):
             pg.draw.circle(screen, (255, 100, 100), pos, dot_radius)
             
             glow_surf = pg.Surface((glow_radius * 2, glow_radius * 2), pg.SRCALPHA)
-            pg.draw.circle(glow_surf, (200, 0, 0, 80), (glow_radius, glow_radius), glow_radius)
+            pg.draw.circle(glow_surf, (200, 0, 0, 40), (glow_radius, glow_radius), glow_radius)
             
             screen.blit(glow_surf, (pos[0] - glow_radius, pos[1] - glow_radius), special_flags=pg.BLEND_RGB_ADD)
