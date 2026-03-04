@@ -70,6 +70,8 @@ class Game:
         self.state = GameState()
         self.state.started = False
         self.state.paused = False
+
+        self.theme.reset()
         self.reset_player()                 # Core & Player
         self.reset_enemies()                # Obstacles & Math
         self.reset_road()                   # Core & Player
@@ -163,6 +165,8 @@ class Game:
         for e in self.enemies.obstacles:
             e.draw_with_light(self.screen, self.theme.is_night)
         self.player.draw_with_light(self.screen, self.theme.is_night)
+
+        self.theme.apply(self.screen)
 
         expl = pg.transform.smoothscale(self.explosion_img, (120, 120))
         self.screen.blit(expl, expl.get_rect(center=mid))

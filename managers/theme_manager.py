@@ -6,11 +6,15 @@ class ThemeManager:
     def __init__(self):
         self.is_night = False
         self.timer = 0
-        self.interval = 2000
+        self.interval = C.THEME_INTERVAL
 
         self.dark_overlay = pg.Surface((C.WIDTH, C.HEIGHT))
         self.dark_overlay.fill((0, 0, 0))
-        self.dark_overlay.set_alpha(120)
+        self.dark_overlay.set_alpha(C.NIGHT_ALPHA)
+
+    def reset(self):
+        self.is_night = False
+        self.timer = 0
 
     def update(self, dt):
         self.timer += dt

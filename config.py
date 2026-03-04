@@ -13,6 +13,9 @@ class Settings:
     PLAYER_LANE_SPEED = int(30 / LANES)
     PLAYER_Y = int(HEIGHT - CAR_HEIGHT / 2) - 15
 
+    THEME_INTERVAL = 10000 
+    NIGHT_ALPHA = 120
+
     WHITE = (255, 255, 255)
     GRAY = (120, 120, 120)
     RED = (220, 50, 50)
