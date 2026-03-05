@@ -5,11 +5,35 @@ from entities.obstacle import Obstacle
 
 
 class TrafficType:
+    """
+    Constants for traffic direction types.
+    """
     SAME = "SAME"
     OPPOSITE = "OPPOSITE"
 
 
 class ObstacleManager:
+    """
+    Manages spawning, movement, and collision logic for all road obstacles.
+
+    Parameters
+    ----------
+    car_images : list of pg.Surface
+        Collection of textures for standard cars.
+    track_images : list of pg.Surface
+        Collection of textures for trucks/larger vehicles.
+
+    Attributes
+    ----------
+    obstacles : list of Obstacle
+        Active obstacles currently in the game world.
+    lane_speeds : list of lists
+        Current speeds of obstacles indexed by lane.
+    images : dict
+        Mapping of obstacle types to their respective image lists.
+    speed_groups : dict
+        Speed multipliers based on TrafficType.
+    """
 
     def __init__(self, car_images, track_images):
         self.car_images = car_images
@@ -32,11 +56,41 @@ class ObstacleManager:
         }
 
     def get_lane_type(self, lane):
+        """
+        Determine if a lane is following or opposing player direction.
+
+        Parameters
+        ----------
+        lane : int
+            The lane index.
+
+        Returns
+        -------
+        str
+            TrafficType.SAME or TrafficType.OPPOSITE.
+        """
         if lane % 2 == 0:
             return TrafficType.SAME
         return TrafficType.OPPOSITE
 
     def is_spawn_safe(self, candidates, base_speed, player_x):
+        """
+        Run a look-ahead simulation to ensure a spawn configuration is escapable.
+
+        Parameters
+        ----------
+        candidates : list of Obstacle
+            Proposed obstacles to spawn.
+        base_speed : float
+            Current global game speed.
+        player_x : float
+            Current horizontal position of the player.
+
+        Returns
+        -------
+        bool
+            True if a safe path exists through the obstacles, False otherwise.
+        """
         player_lane = int((player_x - C.LANE_OFFSET) / C.LANE_WIDTH)
         sim_obstacles = self.obstacles + candidates
         reachable_min = reachable_max = player_lane
@@ -67,6 +121,18 @@ class ObstacleManager:
         return True
 
     def spawn(self, max_enemies, player_x, base_speed=None):
+        """
+        Attempt to generate a new wave of obstacles based on difficulty metrics.
+
+        Parameters
+        ----------
+        max_enemies : float
+            Difficulty factor determining potential obstacle density.
+        player_x : float
+            Player's current X position for safety verification.
+        base_speed : float, optional
+            The reference speed for scaling obstacle movement.
+        """
         if base_speed is None:
             base_speed = 360
 
@@ -118,6 +184,14 @@ class ObstacleManager:
             attempts += 1
 
     def update(self, dt_sec):
+        """
+        Advance all obstacles and remove those out of bounds.
+
+        Parameters
+        ----------
+        dt_sec : float
+            The time elapsed since the last frame in seconds (delta time).
+        """
         for o in self.obstacles:
             o.update(dt_sec)
 
@@ -131,11 +205,32 @@ class ObstacleManager:
             self.lane_speeds[o.lane].append(o.speed)
 
     def check_collision(self, player_rect):
+        """
+        Check if any active obstacle intersects with the player's rect.
+
+        Parameters
+        ----------
+        player_rect : pg.Rect
+            The player's hitbox.
+
+        Returns
+        -------
+        Obstacle or None
+            The obstacle involved in collision, or None if no collision.
+        """
         for o in self.obstacles:
             if o.collides(player_rect):
                 return o
         return None
 
     def draw(self, screen):
+        """
+        Render all obstacles to the given surface.
+
+        Parameters
+        ----------
+        screen : pg.Surface
+            The game display surface.
+        """
         for o in self.obstacles:
             o.draw(screen)
