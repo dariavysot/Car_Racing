@@ -36,3 +36,6 @@ class Settings:
 
     PLAYER_COLOR = "red"
     NUM_PLAYERS = 1
+
+    PLAYER1_COLOR = "blue"
+    PLAYER2_COLOR = "red"

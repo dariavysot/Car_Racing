@@ -139,4 +139,4 @@ class ObstacleManager:
 
     def draw(self, screen, is_night):
         for o in self.obstacles:
-            o.draw_with_light(screen, is_night)
+            o.draw_only_light(screen, is_night)

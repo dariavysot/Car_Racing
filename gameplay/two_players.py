@@ -15,6 +15,7 @@ from managers.obstacle_manager import ObstacleManager
 from entities.road import Road
 from entities.player import PlayerCar
 from managers.asset_manager import AssetManager
+from managers.theme_manager import ThemeManager
 
 
 class TwoPlayersGame:
@@ -43,6 +44,8 @@ class TwoPlayersGame:
         The system responsible for spawning and updating traffic.
     state : GameState
         Tracks session data like speed, difficulty, and pause status.
+    theme : ThemeManager
+        Handles the day/night cycle transitions and dark overlay effects.
     """
     def __init__(self, assets):
         """
@@ -77,6 +80,7 @@ class TwoPlayersGame:
         self.clock = assets["clock"]
         self.font_big = assets["font_big"]
         self.font_small = assets["font_small"]
+        self.theme = ThemeManager()
 
         self.road_img = assets["road"]
         self.car_images = assets["cars"]
@@ -92,8 +96,8 @@ class TwoPlayersGame:
         """
         Reset the game state and reinitialize players and managers.
 
-        Restores difficulty settings, clears existing obstacles, and
-        repositions both players to their starting locations.
+        Restores difficulty settings, clears existing obstacles, repositions 
+        both players, and resets the environmental theme to daylight.
 
         Returns
         -------
@@ -102,6 +106,8 @@ class TwoPlayersGame:
         self.state = GameState()
         self.state.started = False
         self.state.paused = False
+
+        self.theme.reset()
 
         self.road = Road(self.road_img)
         self.enemies = ObstacleManager(self.car_images, self.truck_images)
@@ -139,10 +145,10 @@ class TwoPlayersGame:
     # ----------------------------
     def update(self, keys, dt, now):
         """
-        Update the game logic and object positions.
+        Update the game logic, object positions, and environmental effects.
 
-        Handles time-based difficulty scaling, player movement based on
-        keyboard input, obstacle spawning, and movement of the road.
+        Handles time-based difficulty scaling, environmental day/night transitions,
+        player movement, obstacle spawning, and movement of the road.
 
         Parameters
         ----------
@@ -160,6 +166,8 @@ class TwoPlayersGame:
         dt_sec = dt / 1000
         self.state.time += dt_sec
         self.state.update_difficulty()
+
+        self.theme.update(dt)
 
         self.player1.update(keys)
         self.player2.update(keys)
@@ -240,9 +248,17 @@ class TwoPlayersGame:
         None
         """
         self.road.draw(self.screen)
-        self.enemies.draw(self.screen)
+
+        for o in self.enemies.obstacles:
+            o.draw(self.screen)
         self.player1.draw(self.screen)
         self.player2.draw(self.screen)
+
+        self.theme.apply(self.screen)
+
+        self.enemies.draw(self.screen, self.theme.is_night)
+        self.player1.draw_only_light(self.screen, self.theme.is_night)
+        self.player2.draw_only_light(self.screen, self.theme.is_night)
 
         expl = pg.transform.smoothscale(self.explosion_img, (120, 120))
         if crash1:
@@ -303,12 +319,23 @@ class TwoPlayersGame:
         -------
         None
         """
+        # 1. Base / Opaque Pass
         self.screen.fill(C.GRAY)
         self.road.draw(self.screen)
-        self.enemies.draw(self.screen)
 
+        # 2. Render physical entities
+        for o in self.enemies.obstacles:
+            o.draw(self.screen)
         self.player1.draw(self.screen)
         self.player2.draw(self.screen)
+
+        # 3. Apply Light Mask
+        self.theme.apply(self.screen)
+
+        # 4. Additive Emissive Pass
+        self.enemies.draw(self.screen, self.theme.is_night)
+        self.player1.draw_only_light(self.screen, self.theme.is_night)
+        self.player2.draw_only_light(self.screen, self.theme.is_night)
 
         if not self.state.started:
             text = self.font_big.render("Press SPACE to start", True, C.WHITE)
