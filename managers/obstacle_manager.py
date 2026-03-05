@@ -110,7 +110,8 @@ class ObstacleManager:
                     image,
                     lane,
                     - C.HEIGHT / 2,
-                    speed
+                    speed,
+                    direction=lane_type
                 )
                 candidates.append(obstacle)
 
@@ -136,6 +137,7 @@ class ObstacleManager:
                 return o
         return None
 
-    def draw(self, screen):
+    def draw(self, screen, is_night):
+        """Render lighting effects for all managed obstacles."""
         for o in self.obstacles:
-            o.draw(screen)
+            o.draw_only_light(screen, is_night)
