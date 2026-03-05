@@ -23,7 +23,9 @@ class GameConfig:
         """
         Define and parse available command-line arguments.
         
-        Ensures logical consistency by preventing conflicting mode arguments.
+        Ensures logical consistency:
+        - --car-color and --players 2 are mutually exclusive.
+        - --car1-color and --car2-color require --players 2.
         """
         parser = argparse.ArgumentParser(description="Car Racing Game")
 
@@ -59,8 +61,9 @@ class GameConfig:
 
         args = parser.parse_args()
 
-        if args.players == 2 and args.car_color:
-            parser.error("--car-color cannot be used with --players 2")
+        if args.players != 2:
+            if args.car1_color or args.car2_color:
+                parser.error("--car1-color and --car2-color require --players 2")
 
         GameConfig.apply(args)
 
