@@ -124,6 +124,29 @@ class Game:
         pg.display.flip()  
 
     def draw_score(self, dt):
+        """
+        Calculate and render the current score on the screen.
+
+        The score is dynamically calculated based on the total elapsed game
+        time. It is rendered using a small font and positioned in the
+        top-left corner of the display.
+
+        Parameters
+        ----------
+        dt : int
+            Time passed since the last frame in milliseconds. This is used
+            for frame-rate independent calculations if necessary.
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        The score formula is: floor(game_time_seconds * 10).
+        The text is blitted at a fixed offset of (10, 10) pixels from the
+        top-left corner of the screen.
+        """
         score = self.font_small.render(
             f"Score: {int(self.state.time * 10)}", True, C.WHITE
         )
@@ -162,6 +185,30 @@ class Game:
 
 
     def show_game_over(self):
+        """
+        Render and display the final game-over screen.
+
+        Displays the "GAME OVER" title, the current high score, and a prompt
+        to restart. If a new high score was achieved during the session,
+        a "NEW RECORD!" announcement is shown.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        - Uses `pg.display.flip()` to ensure the final frame is visible to
+          the player.
+        - Centering is calculated based on `config.Settings.WIDTH` and
+          `config.Settings.HEIGHT`.
+        - Checks for the 'is_new_record' attribute to toggle the gold-colored
+          record announcement.
+        """
         cx, cy = C.WIDTH // 2, C.HEIGHT // 2
 
         game_over = self.font_big.render("GAME OVER", True, C.WHITE)

@@ -1,3 +1,11 @@
+"""
+Two-player competitive mode for the Car Racing game.
+
+This module provides the `TwoPlayersGame` class, which manages a separate
+game loop where two players can race simultaneously on the same screen,
+avoiding obstacles and competing for survival.
+"""
+
 import pygame as pg
 import sys
 
@@ -10,7 +18,61 @@ from managers.asset_manager import AssetManager
 
 
 class TwoPlayersGame:
+    """
+    Manager for the two-player competitive racing mode.
+
+    This class coordinates the game loop, player movements, obstacle
+    generation, and collision resolution for a split-lane racing
+    environment.
+
+    Parameters
+    ----------
+    assets : dict
+        A dictionary containing shared game resources. Expected keys:
+        - 'screen': pg.Surface, the main display surface.
+        - 'clock': pg.time.Clock, game timing controller.
+        - 'font_big', 'font_small': pg.font.Font, text rendering assets.
+        - 'road', 'cars', 'trucks', 'explosion': pg.Surface or list,
+          graphical assets loaded via AssetManager.
+
+    Attributes
+    ----------
+    player1, player2 : PlayerCar
+        The two competing player instances with distinct controls.
+    enemies : ObstacleManager
+        The system responsible for spawning and updating traffic.
+    state : GameState
+        Tracks session data like speed, difficulty, and pause status.
+    """
     def __init__(self, assets):
+        """
+        Initialize the TwoPlayersGame instance.
+
+        Sets up the display surface, timing controls, and loads all necessary
+        graphical and text assets from the provided shared resource dictionary.
+
+        Parameters
+        ----------
+        assets : dict
+            A dictionary containing shared game resources. Expected keys:
+
+            - 'screen' : pygame.Surface
+                The main window surface for rendering.
+            - 'clock' : pygame.time.Clock
+                The clock object used to control the game's frame rate.
+            - 'font_big' : pygame.font.Font
+                Font object used for large UI elements like "GAME OVER".
+            - 'font_small' : pygame.font.Font
+                Font object used for smaller instructions and hints.
+            - 'road' : pygame.Surface
+                The background image for the racing track.
+            - 'cars' : list of pygame.Surface
+                A collection of car sprites for obstacles.
+            - 'trucks' : list of pygame.Surface
+                A collection of truck sprites for obstacles.
+            - 'explosion' : pygame.Surface
+                The sprite used for the crash animation.
+        """
         self.screen = assets["screen"]
         self.clock = assets["clock"]
         self.font_big = assets["font_big"]
@@ -27,6 +89,16 @@ class TwoPlayersGame:
     # RESET
     # ----------------------------
     def reset(self):
+        """
+        Reset the game state and reinitialize players and managers.
+
+        Restores difficulty settings, clears existing obstacles, and
+        repositions both players to their starting locations.
+
+        Returns
+        -------
+        None
+        """
         self.state = GameState()
         self.state.started = False
         self.state.paused = False
@@ -66,6 +138,25 @@ class TwoPlayersGame:
     # UPDATE
     # ----------------------------
     def update(self, keys, dt, now):
+        """
+        Update the game logic and object positions.
+
+        Handles time-based difficulty scaling, player movement based on
+        keyboard input, obstacle spawning, and movement of the road.
+
+        Parameters
+        ----------
+        keys : pygame.key.ScancodeWrapper
+            The state of all keyboard buttons.
+        dt : int
+            Time passed since the last frame in milliseconds.
+        now : int
+            Current time in milliseconds since pygame.init() was called.
+
+        Returns
+        -------
+        None
+        """
         dt_sec = dt / 1000
         self.state.time += dt_sec
         self.state.update_difficulty()
@@ -98,6 +189,23 @@ class TwoPlayersGame:
     # COLLISIONS
     # ----------------------------
     def check_collisions(self):
+        """
+        Detect and resolve interactions between players and obstacles.
+
+        Evaluates collisions between each player's hitbox and active
+        obstacles, as well as head-on or side collisions between
+        the two players.
+
+        Returns
+        -------
+        None
+            Triggers `handle_result` if a collision is detected.
+
+        Notes
+        -----
+        Player-to-player collision logic uses the `direction` attribute
+        to determine fault (e.g., which player swerved into the other).
+        """
         crash1 = self.enemies.check_collision(self.player1.rect)
         crash2 = self.enemies.check_collision(self.player2.rect)
 
@@ -117,6 +225,20 @@ class TwoPlayersGame:
             self.handle_result(crash1, crash2)
 
     def show_explosion(self, crash1, crash2):
+        """
+        Render the explosion animation at the point of impact.
+
+        Parameters
+        ----------
+        crash1 : bool
+            True if Player 1 has collided.
+        crash2 : bool
+            True if Player 2 has collided.
+
+        Returns
+        -------
+        None
+        """
         self.road.draw(self.screen)
         self.enemies.draw(self.screen)
         self.player1.draw(self.screen)
@@ -139,6 +261,20 @@ class TwoPlayersGame:
         pg.time.delay(700)
 
     def handle_result(self, crash1, crash2):
+        """
+        Determine the winner and initiate the game-over sequence.
+
+        Parameters
+        ----------
+        crash1 : bool
+            Indicates if Player 1 crashed.
+        crash2 : bool
+            Indicates if Player 2 crashed.
+
+        Returns
+        -------
+        None
+        """
         if crash1 and crash2:
             result_text = "DRAW!"
 
@@ -157,6 +293,16 @@ class TwoPlayersGame:
     # DRAW
     # ----------------------------
     def draw(self):
+        """
+        Render all game objects to the screen.
+
+        Draws the road, obstacles, and players. Displays a start message
+        if the game has not yet begun.
+
+        Returns
+        -------
+        None
+        """
         self.screen.fill(C.GRAY)
         self.road.draw(self.screen)
         self.enemies.draw(self.screen)
@@ -175,6 +321,18 @@ class TwoPlayersGame:
     # GAME OVER
     # ----------------------------
     def show_game_over(self, result_text):
+        """
+        Display the final results and restart instructions on the screen.
+
+        Parameters
+        ----------
+        result_text : str
+            The message indicating who won or if it was a draw.
+
+        Returns
+        -------
+        None
+        """
         cx, cy = C.WIDTH // 2, C.HEIGHT // 2
 
         game_over = self.font_big.render("GAME OVER", True, C.WHITE)
@@ -189,6 +347,13 @@ class TwoPlayersGame:
         pg.display.flip()
 
     def wait_for_restart(self):
+        """
+        Halt execution and wait for user input to restart.
+
+        Returns
+        -------
+        None
+        """
         waiting = True
         while waiting:
             for e in pg.event.get():
@@ -203,6 +368,29 @@ class TwoPlayersGame:
     # MAIN LOOP
     # ----------------------------
     def run(self):
+        """
+        Execute the main game loop for the two-player mode.
+
+        This method handles the continuous cycle of event processing,
+        physics/logic updates, and frame rendering until the user
+        exits or the process is terminated.
+
+        Parameters
+        ----------
+        None
+            This method does not take external parameters as it uses
+            the instance's internal state.
+
+        Returns
+        -------
+        None
+            The method returns only when the application is closed.
+
+        Notes
+        -----
+        The loop uses `self.clock.tick(C.FPS)` to maintain a stable
+        frame rate and calculates `dt` for frame-independent movement.
+        """
         running = True
 
         while running:
