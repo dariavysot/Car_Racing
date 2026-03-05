@@ -26,8 +26,8 @@ class ObstacleManager:
         self.images["TRUCK"] = self.track_images
 
         self.speed_groups = {
-            TrafficType.SAME: (0.6, 0.8),      # 70–90%
-            TrafficType.OPPOSITE: (1.2, 1.4)   # 110–150%
+            TrafficType.SAME: (0.6, 0.8),      # 60–80%
+            TrafficType.OPPOSITE: (1.2, 1.4)   # 120–140%
         }
 
     def get_lane_type(self, lane):

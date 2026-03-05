@@ -1,3 +1,5 @@
+from state import calculate_speed
+
 class Settings:
     WIDTH, HEIGHT = 480, 720
     FPS = 60
@@ -5,13 +7,15 @@ class Settings:
     LANES = 6
     LANE_WIDTH = WIDTH / LANES
 
-    CAR_WIDTH = int(WIDTH / (LANES * 1.4))
-    CAR_HEIGHT = int(CAR_WIDTH * 1.7)
+    CAR_WIDTH = int(WIDTH / (LANES * 1.6))
+    CAR_HEIGHT = int(CAR_WIDTH * 2.0)
 
-    TRUCK_HEIGHT = int(CAR_WIDTH * 2.4)
+    TRUCK_HEIGHT = int(CAR_WIDTH * 2.6)
 
     PLAYER_LANE_SPEED = int(1800 / LANES)
     PLAYER_Y = int(HEIGHT - CAR_HEIGHT / 2) - 15
+
+    MAX_SPEED_RATING = calculate_speed(120)
 
     WHITE = (255, 255, 255)
     GRAY = (120, 120, 120)

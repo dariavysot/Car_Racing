@@ -45,13 +45,13 @@ class AssetManager:
     # LOGIN.PY WRAPS
     # ----------------------------
     @staticmethod
-    def load_road(path="images/road.png"):
+    def load_road(path="assets/images/road.png"):
         img = AssetManager.load_sprite(path, AssetManager.make_road_fallback)
         return pg.transform.smoothscale(img, (C.WIDTH, C.HEIGHT))
 
     @staticmethod
     def load_car(color_name):
-        path = f"images/{color_name}_car.png"
+        path = f"assets/images/{color_name}_car.png"
 
         img = AssetManager.load_sprite(
             path,
@@ -60,8 +60,9 @@ class AssetManager:
 
         return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.CAR_HEIGHT))
 
+    @staticmethod
     def load_taxi():
-        path = f"images/taxi.png"
+        path = f"assets/images/taxi.png"
 
         img = AssetManager.load_sprite(
             path,
@@ -70,8 +71,9 @@ class AssetManager:
 
         return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.CAR_HEIGHT))
 
+    @staticmethod
     def load_truck(num):
-        path = f"images/truck_{num}.png"
+        path = f"assets/images/truck_{num}.png"
 
         img = AssetManager.load_sprite(
             path,
@@ -82,4 +84,4 @@ class AssetManager:
 
     @staticmethod
     def load_explosion():
-        return AssetManager.load_sprite("images/explosion.png", AssetManager.make_explosion_fallback)
+        return AssetManager.load_sprite("assets/images/explosion.png", AssetManager.make_explosion_fallback)
