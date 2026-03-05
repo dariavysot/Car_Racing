@@ -3,9 +3,11 @@ import pygame as pg
 from config import Settings as C
 from entities.obstacle import Obstacle
 
+
 class TrafficType:
     SAME = "SAME"
     OPPOSITE = "OPPOSITE"
+
 
 class ObstacleManager:
 
@@ -15,47 +17,40 @@ class ObstacleManager:
 
         self.obstacles = []
 
-        self.reachable_min = 0
-        self.reachable_max = C.LANES - 1
-
-        self.horizon = 2.0
-        self.sim_dt = 0.05
+        self.horizon = 3.0
+        self.sim_dt = 0.01
 
         self.images = {}
         self.images["CAR"] = self.car_images
         self.images["TRUCK"] = self.track_images
 
         self.speed_groups = {
-            TrafficType.SAME: (0.6, 0.8),      # 60–80%
-            TrafficType.OPPOSITE: (1.2, 1.4)   # 120–140%
+            TrafficType.SAME: (0.5, 0.75),      # 50–75 %
+            TrafficType.OPPOSITE: (1.25, 1.5)   # 125–150 %
         }
 
     def get_lane_type(self, lane):
         if lane % 2 == 0:
             return TrafficType.SAME
         return TrafficType.OPPOSITE
-    
-    def is_spawn_safe(self, candidates, base_speed):
 
+
+    def is_spawn_safe(self, candidates, base_speed, player_x):
+        player_lane = int((player_x - C.LANE_OFFSET) / C.LANE_WIDTH)
         sim_obstacles = self.obstacles + candidates
-
-        reachable_min = self.reachable_min
-        reachable_max = self.reachable_max
+        reachable_min = player_lane
+        reachable_max = player_lane
 
         t = 0.0
-
         while t < self.horizon:
-
             max_shift = t * C.PLAYER_LANE_SPEED
 
             cur_min = max(0, reachable_min - max_shift)
             cur_max = min(C.LANES - 1, reachable_max + max_shift)
 
             blocked_lanes = set()
-
             for o in sim_obstacles:
                 future_y = o.rect.y + o.speed * t
-
                 if abs(future_y - C.PLAYER_Y) < C.CAR_HEIGHT:
                     blocked_lanes.add(o.lane)
 
@@ -75,29 +70,28 @@ class ObstacleManager:
 
         return True
 
-    def spawn(self, max_enemies, base_speed=None):
-
+    def spawn(self, max_enemies, player_x, base_speed=None):
         if base_speed is None:
             base_speed = 360
 
         attempts = 0
-
         while attempts < 40:
-
             obstacle_count = random.randint(
                 1,
                 max(1, int(C.LANES * max_enemies))
             )
-
             lanes = random.sample(range(C.LANES), obstacle_count)
 
             candidates = []
-
             for lane in lanes:
-                
                 lane_type = self.get_lane_type(lane)
                 mult_min, mult_max = self.speed_groups[lane_type]
                 speed = base_speed * random.uniform(mult_min, mult_max)
+
+                ahead_obstacles = [o for o in self.obstacles if o.lane == lane]
+                if ahead_obstacles:
+                    min_ahead_speed = min(o.speed for o in ahead_obstacles)
+                    speed = min(speed, min_ahead_speed)
 
                 obstacle_type = random.choices(["CAR", "TRUCK"], [0.75, 0.25], k=1)[0]
                 image = random.choices(self.images[obstacle_type], k=1)[0]
@@ -107,19 +101,29 @@ class ObstacleManager:
                 obstacle = Obstacle(
                     image,
                     lane,
-                    - C.HEIGHT / 2,
+                    -C.HEIGHT / 2,
                     speed
                 )
                 candidates.append(obstacle)
 
-            if self.is_spawn_safe(candidates, base_speed):
+            spawn_y = -C.HEIGHT / 2
+            immediate_safe = not any(
+                c.lane == o.lane and abs(c.rect.y - o.rect.y) < C.CAR_HEIGHT * 1.5
+                for c in candidates
+                for o in self.obstacles
+            )
+
+            if not immediate_safe:
+                attempts += 1
+                continue
+
+            if self.is_spawn_safe(candidates, base_speed, player_x):
                 self.obstacles.extend(candidates)
                 return
 
             attempts += 1
 
     def update(self, dt_sec):
-
         for o in self.obstacles:
             o.update(dt_sec)
 

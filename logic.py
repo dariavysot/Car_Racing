@@ -97,6 +97,7 @@ class Game:
         if now - self.state.last_spawn >= self.state.spawn_interval:
             self.enemies.spawn(
                 self.state.max_enemies,
+                self.player.rect.centerx,
                 self.state.speed
             )
             self.state.last_spawn = now

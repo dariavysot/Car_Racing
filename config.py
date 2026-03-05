@@ -5,7 +5,8 @@ class Settings:
     FPS = 60
 
     LANES = 6
-    LANE_WIDTH = WIDTH / LANES
+    LANE_WIDTH = WIDTH // LANES
+    LANE_OFFSET = LANE_WIDTH // 2
 
     CAR_WIDTH = int(WIDTH / (LANES * 1.6))
     CAR_HEIGHT = int(CAR_WIDTH * 2.0)
