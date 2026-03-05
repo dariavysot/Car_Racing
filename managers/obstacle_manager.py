@@ -1,6 +1,7 @@
 import random
 import pygame as pg
 from config import Settings as C
+from gameplay.collision import check_rect_collision
 from entities.obstacle import Obstacle
 
 class TrafficType:
@@ -34,7 +35,7 @@ class ObstacleManager:
         if lane % 2 == 0:
             return TrafficType.SAME
         return TrafficType.OPPOSITE
-    
+
     def is_spawn_safe(self, candidates, base_speed):
 
         sim_obstacles = self.obstacles + candidates
@@ -95,7 +96,7 @@ class ObstacleManager:
             candidates = []
 
             for lane in lanes:
-                
+
                 lane_type = self.get_lane_type(lane)
                 mult_min, mult_max = self.speed_groups[lane_type]
                 speed = base_speed * random.uniform(mult_min, mult_max)
@@ -132,7 +133,7 @@ class ObstacleManager:
 
     def check_collision(self, player_rect):
         for o in self.obstacles:
-            if o.collides(player_rect):
+            if check_rect_collision(player_rect, o.rect):
                 return o
         return None
 

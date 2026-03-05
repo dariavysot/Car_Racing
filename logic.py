@@ -5,6 +5,7 @@
 import os
 import sys
 import pygame as pg
+from storage.highscore import HighScore
 
 from config import Settings as C
 from state import GameState
@@ -22,6 +23,7 @@ class Game:
         self.load_assets()
         self.init_managers()
         self.reset()
+        self.highscore = HighScore()
 
     # ----------------------------
     # INIT BLOCK
@@ -141,6 +143,29 @@ class Game:
         pg.display.flip()  
 
     def draw_score(self, dt):
+        """
+        Calculate and render the current score on the screen.
+
+        The score is dynamically calculated based on the total elapsed game
+        time. It is rendered using a small font and positioned in the
+        top-left corner of the display.
+
+        Parameters
+        ----------
+        dt : int
+            Time passed since the last frame in milliseconds. This is used
+            for frame-rate independent calculations if necessary.
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        The score formula is: floor(game_time_seconds * 10).
+        The text is blitted at a fixed offset of (10, 10) pixels from the
+        top-left corner of the screen.
+        """
         score = self.font_small.render(
             f"Score: {int(self.state.time * 10)}", True, C.WHITE
         )
@@ -157,6 +182,8 @@ class Game:
     # ----------------------------
     def handle_crash(self, enemy_rect):
         self.show_explosion(enemy_rect)
+        final_score = int(self.state.time * 10)
+        self.is_new_record = self.highscore.save_if_better(final_score)
         self.show_game_over()
         self.wait_for_restart()
 
@@ -183,10 +210,45 @@ class Game:
 
 
     def show_game_over(self):
+        """
+        Render and display the final game-over screen.
+
+        Displays the "GAME OVER" title, the current high score, and a prompt
+        to restart. If a new high score was achieved during the session,
+        a "NEW RECORD!" announcement is shown.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        - Uses `pg.display.flip()` to ensure the final frame is visible to
+          the player.
+        - Centering is calculated based on `config.Settings.WIDTH` and
+          `config.Settings.HEIGHT`.
+        - Checks for the 'is_new_record' attribute to toggle the gold-colored
+          record announcement.
+        """
+        cx, cy = C.WIDTH // 2, C.HEIGHT // 2
+
         game_over = self.font_big.render("GAME OVER", True, C.WHITE)
+        self.screen.blit(game_over, game_over.get_rect(center=(cx, cy - 100)))
+
+        if getattr(self, 'is_new_record', False):
+            record_text = self.font_big.render("NEW RECORD!", True, (255, 215, 0))
+            self.screen.blit(record_text, record_text.get_rect(center=(cx, cy)))
+
+        hs_text = self.font_small.render(f"High Score: {self.highscore.value}", True, C.YELLOW)
+        self.screen.blit(hs_text, hs_text.get_rect(center=(cx, cy + 60)))
+
         press = self.font_small.render("Press any key to restart", True, C.WHITE)
-        self.screen.blit(game_over, game_over.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2 - 30)))
-        self.screen.blit(press, press.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2 + 20)))
+        self.screen.blit(press, press.get_rect(center=(cx, cy + 120)))
+
         pg.display.flip()
 
     def wait_for_restart(self):

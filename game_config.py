@@ -14,6 +14,18 @@ class GameConfig:
         )
 
         parser.add_argument(
+            "--car1-color",
+            choices=["red", "blue", "yellow", "orange", "purple", "green"],
+            help="First player car color (two-player mode)"
+        )
+
+        parser.add_argument(
+            "--car2-color",
+            choices=["red", "blue", "yellow", "orange", "purple", "green"],
+            help="Second player car color (two-player mode)"
+        )
+
+        parser.add_argument(
             "--players",
             type=int,
             choices=[1, 2],
@@ -27,7 +39,12 @@ class GameConfig:
     @staticmethod
     def apply(args):
         # color
-        C.PLAYER_COLOR = args.car_color.lower()
+        if args.players == 1:
+            C.PLAYER_COLOR = args.car_color
+
+        else:  # two players
+            C.PLAYER1_COLOR = args.car1_color or "blue"
+            C.PLAYER2_COLOR = args.car2_color or "red"
 
         # number of players
         C.NUM_PLAYERS = args.players  
