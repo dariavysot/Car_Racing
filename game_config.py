@@ -7,6 +7,7 @@ player colors and game modes.
 """
 
 import argparse
+import sys
 from config import Settings as C
 
 class GameConfig:
@@ -21,28 +22,27 @@ class GameConfig:
     def parse():
         """
         Define and parse available command-line arguments.
-
-        Supported arguments:
-        - --car-color: Color for single-player mode.
-        - --car1-color: Color for Player 1 in competitive mode.
-        - --car2-color: Color for Player 2 in competitive mode.
-        - --players: Mode selector (1 for solo, 2 for versus).
-
-        Returns
-        -------
-        None
-            The method calls `apply()` internally to update global state.
+        
+        Ensures logical consistency by preventing conflicting mode arguments.
         """
         parser = argparse.ArgumentParser(description="Car Racing Game")
 
         # Color choices shared across parameters
         color_choices = ["red", "blue", "yellow", "orange", "purple", "green"]
 
-        parser.add_argument(
+        group = parser.add_mutually_exclusive_group()
+
+        group.add_argument(
             "--car-color",
             choices=color_choices,
-            default="red",
-            help="Player car color (single-player mode)"
+            help="Player car color (single-player mode only)"
+        )
+
+        group.add_argument(
+            "--players",
+            type=int,
+            choices=[2],
+            help="Set to 2 for competitive mode"
         )
 
         parser.add_argument(
@@ -57,15 +57,11 @@ class GameConfig:
             help="Second player car color (two-player mode)"
         )
 
-        parser.add_argument(
-            "--players",
-            type=int,
-            choices=[1, 2],
-            default=1,
-            help="Number of players (1 or 2)"
-        )
-
         args = parser.parse_args()
+
+        if args.players == 2 and args.car_color:
+            parser.error("--car-color cannot be used with --players 2")
+
         GameConfig.apply(args)
 
     @staticmethod
@@ -78,11 +74,12 @@ class GameConfig:
         args : argparse.Namespace
             Object containing the values from the command-line flags.
         """
-        # Configuration for single-player mode
-        if args.players == 1:
-            C.PLAYER_COLOR = args.car_color
+        num_players = 2 if args.players == 2 else 1
+        C.NUM_PLAYERS = num_players
 
-        # Configuration for competitive two-player mode
+        if num_players == 1:
+            # Configuration for competitive two-player mode
+            C.PLAYER_COLOR = args.car_color or "red"
         else:
             # Fallback to defaults if specific colors aren't provided
             C.PLAYER1_COLOR = args.car1_color or "blue"
