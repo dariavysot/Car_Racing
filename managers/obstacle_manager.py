@@ -138,5 +138,6 @@ class ObstacleManager:
         return None
 
     def draw(self, screen, is_night):
+        """Render lighting effects for all managed obstacles."""
         for o in self.obstacles:
             o.draw_only_light(screen, is_night)
