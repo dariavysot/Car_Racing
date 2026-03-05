@@ -1,8 +1,10 @@
-# NOTE:
-# This file defines the stable game skeleton.
-# Other features should plug into update/draw/reset blocks.
+"""
+Core game engine module.
 
-import os
+This module orchestrates the entire application lifecycle, including 
+resource management, state transitions, and the primary execution loop.
+"""
+
 import sys
 import pygame as pg
 from storage.highscore import HighScore
@@ -16,6 +18,23 @@ from entities.road import Road
 from entities.player import PlayerCar
 
 class Game:
+    """
+    The main Application class.
+
+    This class defines the stable game skeleton. It manages the integration 
+    of various systems like rendering, physics, and state logic. 
+
+    Attributes
+    ----------
+    screen : pg.Surface
+        The main display surface.
+    clock : pg.time.Clock
+        The timing controller for frame rate regulation.
+    state : GameState
+        Container for current session data (score, speed, flags).
+    theme : ThemeManager
+        Controller for environmental Day/Night cycles.
+    """
     def __init__(self):
         self.init_pygame()
         self.init_screen()
@@ -48,6 +67,23 @@ class Game:
     # ASSETS BLOCK
     # ----------------------------
     def load_assets(self):
+        """
+        Load, scale, and cache all graphical resources for the game.
+
+        This method acts as the centralized resource loader. It utilizes the
+        AssetManager to fetch images from disk and performs smoothscaling 
+        to ensure all sprites (cars, trucks, road) align with the resolution 
+        defined in the global settings.
+
+        The method also filters car colors to prevent the player's car sprite 
+        from appearing as an NPC obstacle.
+
+        Notes
+        -----
+        - Player car is scaled to (C.CAR_WIDTH, C.CAR_HEIGHT).
+        - NPC car sprites are stored in `self.car_images`.
+        - Trucks are stored in `self.truck_images` and scaled to `C.TRUCK_HEIGHT`.
+        """
         am = AssetManager
         self.road_img = am.load_road()
         self.player_img = am.load_car(C.PLAYER_COLOR)
@@ -69,28 +105,63 @@ class Game:
     # RESET BLOCK
     # ----------------------------
     def reset(self):
+        """
+        Restore the game session to its initial state.
+        
+        Clears active obstacles, resets the theme timer, and re-initializes 
+        the player and game state flags.
+        """
         self.state = GameState()
         self.state.started = False
         self.state.paused = False
 
         self.theme.reset()
-        self.reset_player()                 # Core & Player
-        self.reset_enemies()                # Obstacles & Math
-        self.reset_road()                   # Core & Player
+        self.reset_player()
+        self.reset_enemies()
+        self.reset_road()
 
     def reset_player(self):
+        """Instantiate a new PlayerCar at the starting position."""
         self.player = PlayerCar(self.player_img)
 
     def reset_enemies(self):
+        """Clear and re-initialize the obstacle management system."""
         self.enemies = ObstacleManager(self.car_images, self.truck_images)
 
     def reset_road(self):
+        """Re-initialize the scrolling road background."""
         self.road = Road(self.road_img)
 
     # ----------------------------
     # UPDATE BLOCK
     # ----------------------------
     def update_objects(self, keys, dt, now):
+        """
+        Update the physics, input, and game state logic for one frame.
+
+        This method is responsible for the 'Think' part of the game loop. It 
+        processes player movement, scrolls the background, manages the enemy 
+        spawning timer, and updates environmental themes.
+
+        Parameters
+        ----------
+        keys : pygame.key.ScancodeWrapper
+            The current keyboard state used for player control.
+        dt : int
+            Delta time in milliseconds since the last update, used to 
+            calculate frame-rate independent movement.
+        now : int
+            Current simulation time in milliseconds (pg.time.get_ticks()).
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        The method converts `dt` to seconds (`dt_sec`) before applying it 
+        to object updates to maintain a consistent speed regardless of FPS.
+        """
         dt_sec = dt / 1000
         self.state.time += dt_sec
         self.player.update(keys)
@@ -107,13 +178,34 @@ class Game:
         self.enemies.update(dt_sec)
         self.theme.update(dt)
 
-    def check_collisions(self):           # Logic & UI
+    def check_collisions(self):
+        """Perform collision detection between the player and traffic."""
         return self.enemies.check_collision(self.player.rect)
 
     # ----------------------------
     # DRAW BLOCK
     # ----------------------------
     def draw(self, dt):
+        """
+        Orchestrate the visual composition of the game frame.
+
+        Implements a multi-pass rendering technique to handle layering:
+        1. Opaque Layer: Road and physical vehicle bodies.
+        2. Filter Layer: Global theme (darkness) overlay.
+        3. Additive Layer: Emissive light sources (headlights) that pierce 
+           the darkness.
+        4. UI Layer: Score, pause messages, and start prompts.
+
+        Parameters
+        ----------
+        dt : int
+            Passed to `draw_score` for UI-related timing.
+
+        Notes
+        -----
+        `pg.display.flip()` is called at the very end to update the window 
+        with the newly rendered frame.
+        """
         self.screen.fill(C.GRAY)
         self.road.draw(self.screen)
 
@@ -125,9 +217,9 @@ class Game:
 
         for enemy in self.enemies.obstacles:
             enemy.draw_only_light(self.screen, self.theme.is_night)
-        
+
         self.player.draw_only_light(self.screen, self.theme.is_night)
-    
+
         self.draw_score(dt)
 
         if self.state.paused:
@@ -170,17 +262,28 @@ class Game:
             f"Score: {int(self.state.time * 10)}", True, C.WHITE
         )
 
-        # data = self.font_small.render(
-        #     f"Spawn: {self.state.spawn_interval}", True, C.WHITE
-        # )
-
         self.screen.blit(score, (10, 10))
-        # self.screen.blit(data, (10, 30))
 
     # ----------------------------
-    # CRASH BLOCK                         Logic & UI
+    # CRASH BLOCK
     # ----------------------------
     def handle_crash(self, enemy_rect):
+        """
+        Coordinate the sequence of events triggered by a player collision.
+
+        This method manages the transition from active gameplay to the post-game 
+        state. It executes the visual crash effect, finalizes the session score, 
+        persists high score data, and enters the game-over interface loop.
+
+        Parameters
+        ----------
+        enemy_rect : pg.Rect
+            The collision source used for explosion positioning.
+
+        Returns
+        -------
+        None
+        """
         self.show_explosion(enemy_rect)
         final_score = int(self.state.time * 10)
         self.is_new_record = self.highscore.save_if_better(final_score)
@@ -188,6 +291,28 @@ class Game:
         self.wait_for_restart()
 
     def show_explosion(self, enemy):
+        """
+        Render a static frame of the collision with an explosion effect.
+
+        Freezes the game logic and draws the impact point between the player 
+        and the obstacle. This provides visual feedback of the crash before 
+        transitioning to the Game Over screen.
+
+        Parameters
+        ----------
+        enemy : Obstacle
+            The obstacle object that the player collided with, used to 
+            calculate the midpoint for the explosion sprite.
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        This method uses `pg.time.delay(700)` to halt the entire thread, 
+        giving the player time to register the collision.
+        """
         mid = (
             (self.player.rect.centerx + enemy.rect.centerx) // 2,
             (self.player.rect.centery + enemy.rect.centery) // 2
@@ -252,6 +377,18 @@ class Game:
         pg.display.flip()
 
     def wait_for_restart(self):
+        """
+        Halt execution in a blocking loop until a restart signal is received.
+
+        This method enters a dedicated event loop after a crash, capturing 
+        input for restarting the game or performing a clean exit.
+
+        Notes
+        -----
+        - Any key (except ESC) triggers a restart.
+        - ESC or window close event triggers `sys.exit()`.
+        - Internal clock is capped at 30 FPS to reduce CPU overhead while waiting.
+        """
         waiting = True
         while waiting:
             for e in pg.event.get():
@@ -270,6 +407,21 @@ class Game:
     # MAIN LOOP
     # ----------------------------
     def run(self):
+        """
+        Execute the primary game loop.
+
+        This method synchronizes input, physics, and rendering. It handles 
+        the master clock, processes events (start/pause/quit), and 
+        orchestrates the update-draw cycle.
+
+        Notes
+        -----
+        - The loop frequency is capped by `config.Settings.FPS`.
+        - Input handling is split between event polling (for toggles) 
+          and scancode state (for continuous movement).
+        - Logic updates are conditionally executed based on the 
+          'started' and 'paused' flags.
+        """
         running = True
         while running:
             dt = self.clock.tick(C.FPS)

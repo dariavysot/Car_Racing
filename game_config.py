@@ -7,7 +7,6 @@ player colors and game modes.
 """
 
 import argparse
-import sys
 from config import Settings as C
 
 class GameConfig:
