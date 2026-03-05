@@ -26,7 +26,7 @@ class Game:
     # INIT BLOCK
     # ----------------------------
     def init_pygame(self):
-        pg.mixer.pre_init(44100, -16, 2, 512)
+        pg.mixer.pre_init(44100, -16, 2, 2048)
         pg.init()
         self.clock = pg.time.Clock()
 

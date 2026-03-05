@@ -20,6 +20,8 @@ class ObstacleManager:
         self.horizon = 3.0
         self.sim_dt = 0.01
 
+        self.lane_speeds = [[] for _ in range(C.LANES)]
+
         self.images = {}
         self.images["CAR"] = self.car_images
         self.images["TRUCK"] = self.track_images
@@ -34,40 +36,34 @@ class ObstacleManager:
             return TrafficType.SAME
         return TrafficType.OPPOSITE
 
-
     def is_spawn_safe(self, candidates, base_speed, player_x):
         player_lane = int((player_x - C.LANE_OFFSET) / C.LANE_WIDTH)
         sim_obstacles = self.obstacles + candidates
-        reachable_min = player_lane
-        reachable_max = player_lane
-
+        reachable_min = reachable_max = player_lane
         t = 0.0
-        while t < self.horizon:
-            max_shift = t * C.PLAYER_LANE_SPEED
+        dt = 0.04
+        horizon = 2.8
 
+        while t < horizon:
+            max_shift = t * C.PLAYER_LANE_SPEED
             cur_min = max(0, reachable_min - max_shift)
             cur_max = min(C.LANES - 1, reachable_max + max_shift)
 
-            blocked_lanes = set()
+            blocked = set()
             for o in sim_obstacles:
                 future_y = o.rect.y + o.speed * t
-                if abs(future_y - C.PLAYER_Y) < C.CAR_HEIGHT:
-                    blocked_lanes.add(o.lane)
+                if abs(future_y - C.PLAYER_Y) < C.CAR_HEIGHT * 1.2:
+                    blocked.add(o.lane)
 
-            safe_lanes = [
-                lane for lane in range(C.LANES)
-                if lane not in blocked_lanes
-                and cur_min <= lane <= cur_max
-            ]
+            safe_lanes = [lane for lane in range(C.LANES)
+                        if lane not in blocked and cur_min <= lane <= cur_max]
 
             if not safe_lanes:
                 return False
 
             reachable_min = min(safe_lanes)
             reachable_max = max(safe_lanes)
-
-            t += self.sim_dt
-
+            t += dt
         return True
 
     def spawn(self, max_enemies, player_x, base_speed=None):
@@ -75,7 +71,7 @@ class ObstacleManager:
             base_speed = 360
 
         attempts = 0
-        while attempts < 40:
+        while attempts < 25:
             obstacle_count = random.randint(
                 1,
                 max(1, int(C.LANES * max_enemies))
@@ -88,10 +84,8 @@ class ObstacleManager:
                 mult_min, mult_max = self.speed_groups[lane_type]
                 speed = base_speed * random.uniform(mult_min, mult_max)
 
-                ahead_obstacles = [o for o in self.obstacles if o.lane == lane]
-                if ahead_obstacles:
-                    min_ahead_speed = min(o.speed for o in ahead_obstacles)
-                    speed = min(speed, min_ahead_speed)
+                if self.lane_speeds[lane]:
+                    speed = min(speed, min(self.lane_speeds[lane]))
 
                 obstacle_type = random.choices(["CAR", "TRUCK"], [0.75, 0.25], k=1)[0]
                 image = random.choices(self.images[obstacle_type], k=1)[0]
@@ -131,6 +125,10 @@ class ObstacleManager:
             o for o in self.obstacles
             if not o.is_out()
         ]
+
+        self.lane_speeds = [[] for _ in range(C.LANES)]
+        for o in self.obstacles:
+            self.lane_speeds[o.lane].append(o.speed)
 
     def check_collision(self, player_rect):
         for o in self.obstacles:

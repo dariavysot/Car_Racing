@@ -6,7 +6,7 @@ class SoundManager:
     def __init__(self):
         pg.mixer.init()
 
-        pg.mixer.music.load("assets/music/music0.mp3")
+        pg.mixer.music.load("assets/music/music0.ogg")
         pg.mixer.music.set_volume(0.5)
 
         self.engine = pg.mixer.Sound("assets/sounds/engine.wav")
