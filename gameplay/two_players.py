@@ -112,6 +112,7 @@ class TwoPlayersGame:
 
         self.theme.reset()
         self.sounds.reset()
+        self.sounds.pause()
 
         self.road = Road(self.road_img)
         self.enemies = ObstacleManager(self.car_images, self.truck_images)
