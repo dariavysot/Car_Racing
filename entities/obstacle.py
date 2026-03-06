@@ -30,7 +30,7 @@ class Obstacle(GameObject):
         The rectangular area defining the position and size (inherited).
     """
 
-    def __init__(self, image, lane, y, speed, direction=1):
+    def __init__(self, image, lane, y, speed, direction="SAME"):
         self.lane = lane
         self.speed = speed
         self.direction = direction
