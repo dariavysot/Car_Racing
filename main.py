@@ -5,7 +5,9 @@ from gameplay.two_players import TwoPlayersGame
 
 
 if __name__ == "__main__":
-    GameConfig.parse()
+    args = GameConfig.parse()
+
+    GameConfig.apply(args)
 
     if C.NUM_PLAYERS == 1:
         Game().run()
