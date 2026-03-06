@@ -21,7 +21,14 @@ Manager-based system, and advanced visual effects like dynamic multi-pass render
 ### 3. Advanced Rendering Pipeline
 * **Multi-pass Lighting:** A 3-layer rendering system (**Base Layer** → **Darkness Mask** → **Light Pass**) for realistic night-time headlight effects without CPU overhead.
 * **Dynamic Theming:** `ThemeManager` cyclically alternates between Day/Night modes every 15s, swapping assets and lighting on the fly.
-  
+
+### 4. System Architecture
+The project follows a manager-based pattern to maintain a decoupled and scalable structure.
+
+![Core System Architecture (UML Class Diagram)](doc/class_diagram.png)
+*UML Class Diagram showing relationships between the Game Engine, Managers, and Entities.*
+
+
 ## 👥 Team & Responsibilities
 
 | Role | Developer | Key Contributions |
