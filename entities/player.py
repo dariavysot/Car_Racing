@@ -50,7 +50,7 @@ class PlayerCar(GameObject):
         self.right_key = right_key
         self.direction = 0
 
-    def update(self, keys):
+    def update(self, keys, dt_sec):
         """
         Process input and update the car's horizontal position.
 
@@ -64,11 +64,11 @@ class PlayerCar(GameObject):
         self.direction = 0
 
         if keys[self.left_key]:
-            self.rect.x -= self.speed
+            self.rect.x -= self.speed * dt_sec
             self.direction = -1
 
         if keys[self.right_key]:
-            self.rect.x += self.speed
+            self.rect.x += self.speed * dt_sec
             self.direction = 1
 
         self.rect.x = max(0, min(self.rect.x, C.WIDTH - self.rect.width))

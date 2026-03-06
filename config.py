@@ -5,6 +5,8 @@ This module contains the `Settings` class which stores all hardcoded values,
 dimensions, colors, and lighting parameters used across the application.
 """
 
+from state import calculate_speed
+
 class Settings:
     """
     Static container for game-wide constants.
@@ -18,7 +20,8 @@ class Settings:
 
     # --- Road & Lane Geometry ---
     LANES = 6
-    LANE_WIDTH = WIDTH / LANES
+    LANE_WIDTH = WIDTH // LANES
+    LANE_OFFSET = LANE_WIDTH // 2
 
     # --- Vehicle Dimensions ---
     CAR_WIDTH = int(WIDTH / (LANES * 1.6))
@@ -26,8 +29,9 @@ class Settings:
     TRUCK_HEIGHT = int(CAR_WIDTH * 2.4)
 
     # --- Gameplay Physics ---
-    PLAYER_LANE_SPEED = int(30 / LANES)
+    PLAYER_LANE_SPEED = int(1800 / LANES)
     PLAYER_Y = int(HEIGHT - CAR_HEIGHT / 2) - 15
+    MAX_SPEED_RATING = calculate_speed(120)
 
     # --- Environment & Theme ---
     THEME_INTERVAL = 15000  # Time in ms between Day/Night cycles

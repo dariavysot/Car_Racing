@@ -37,6 +37,7 @@ class GameConfig:
             "--car-color",
             choices=color_choices,
             help="Player car color (single-player mode only)"
+<<<<<<< HEAD
         )
 
         group.add_argument(
@@ -47,6 +48,18 @@ class GameConfig:
         )
 
         parser.add_argument(
+=======
+        )
+
+        parser.add_argument(
+            "--players",
+            type=int,
+            choices=[1,2],
+            default=1
+        )
+
+        parser.add_argument(
+>>>>>>> feature/math
             "--car1-color",
             choices=color_choices,
             help="First player car color (two-player mode)"
@@ -86,6 +99,9 @@ class GameConfig:
             # Fallback to defaults if specific colors aren't provided
             C.PLAYER1_COLOR = args.car1_color or "blue"
             C.PLAYER2_COLOR = args.car2_color or "red"
+<<<<<<< HEAD
 
         # Update global player count setting
         C.NUM_PLAYERS = args.players
+=======
+>>>>>>> feature/math
