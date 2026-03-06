@@ -16,6 +16,7 @@ from entities.road import Road
 from entities.player import PlayerCar
 from managers.asset_manager import AssetManager
 from managers.theme_manager import ThemeManager
+from managers.sound_manager import SoundManager
 
 
 class TwoPlayersGame:
@@ -81,6 +82,7 @@ class TwoPlayersGame:
         self.font_big = assets["font_big"]
         self.font_small = assets["font_small"]
         self.theme = ThemeManager()
+        self.sounds = SoundManager()
 
         self.road_img = assets["road"]
         self.car_images = assets["cars"]
@@ -88,6 +90,7 @@ class TwoPlayersGame:
         self.explosion_img = assets["explosion"]
 
         self.reset()
+        self.sounds.pause()
 
     # ----------------------------
     # RESET
@@ -108,6 +111,8 @@ class TwoPlayersGame:
         self.state.paused = False
 
         self.theme.reset()
+        self.sounds.reset()
+        self.sounds.pause()
 
         self.road = Road(self.road_img)
         self.enemies = ObstacleManager(self.car_images, self.truck_images)
@@ -127,14 +132,14 @@ class TwoPlayersGame:
 
         self.player1 = PlayerCar(
             player1_img,
-            pg.K_a,
-            pg.K_d
+            left_key=pg.K_a,
+            right_key=pg.K_d
         )
 
         self.player2 = PlayerCar(
             player2_img,
-            pg.K_LEFT,
-            pg.K_RIGHT
+            left_key=pg.K_LEFT,
+            right_key=pg.K_RIGHT
         )
 
         self.player1.rect.centerx = C.WIDTH // 3
@@ -164,13 +169,12 @@ class TwoPlayersGame:
         None
         """
         dt_sec = dt / 1000
-        self.state.time += dt_sec
-        self.state.update_difficulty()
+        self.state.update(dt_sec)
 
         self.theme.update(dt)
 
-        self.player1.update(keys)
-        self.player2.update(keys)
+        self.player1.update(keys, dt_sec)
+        self.player2.update(keys, dt_sec)
 
         self.player1.rect.x = max(
             0,
@@ -256,7 +260,8 @@ class TwoPlayersGame:
 
         self.theme.apply(self.screen)
 
-        self.enemies.draw(self.screen, self.theme.is_night)
+        for o in self.enemies.obstacles:
+            o.draw_only_light(self.screen, self.theme.is_night)
         self.player1.draw_only_light(self.screen, self.theme.is_night)
         self.player2.draw_only_light(self.screen, self.theme.is_night)
 
@@ -291,6 +296,9 @@ class TwoPlayersGame:
         -------
         None
         """
+        self.sounds.crash()
+        self.sounds.pause()
+
         if crash1 and crash2:
             result_text = "DRAW!"
 
@@ -333,7 +341,9 @@ class TwoPlayersGame:
         self.theme.apply(self.screen)
 
         # 4. Additive Emissive Pass
-        self.enemies.draw(self.screen, self.theme.is_night)
+        for o in self.enemies.obstacles:
+            o.draw_only_light(self.screen, self.theme.is_night)
+            
         self.player1.draw_only_light(self.screen, self.theme.is_night)
         self.player2.draw_only_light(self.screen, self.theme.is_night)
 
@@ -430,10 +440,17 @@ class TwoPlayersGame:
 
                 if e.type == pg.KEYDOWN:
                     if e.key == pg.K_SPACE:
+                        self.sounds.click()
                         if not self.state.started:
                             self.state.started = True
+                            self.sounds.unpause()
                         else:
-                            self.state.paused = not self.state.paused
+                            if self.state.paused == False:
+                                self.state.paused = True
+                                self.sounds.pause()
+                            else:
+                                self.state.paused = False
+                                self.sounds.unpause()
 
                     elif e.key == pg.K_ESCAPE:
                         running = False

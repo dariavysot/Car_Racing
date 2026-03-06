@@ -86,4 +86,3 @@ class GameConfig:
             # Fallback to defaults if specific colors aren't provided
             C.PLAYER1_COLOR = args.car1_color or "blue"
             C.PLAYER2_COLOR = args.car2_color or "red"
-
