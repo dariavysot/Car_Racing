@@ -77,7 +77,7 @@ class AssetManager:
     # LOGIN.PY WRAPS
     # ----------------------------
     @staticmethod
-    def load_road(path="images/road.png"):
+    def load_road(path="assets/images/road.png"):
         """Load and scale the road texture to fit screen dimensions."""
         img = AssetManager.load_sprite(path, AssetManager.make_road_fallback)
         return pg.transform.smoothscale(img, (C.WIDTH, C.HEIGHT))
@@ -85,7 +85,7 @@ class AssetManager:
     @staticmethod
     def load_car(color_name):
         """Load and scale a player or NPC car sprite by color."""
-        path = f"images/{color_name}_car.png"
+        path = f"assets/images/{color_name}_car.png"
 
         img = AssetManager.load_sprite(
             path,
@@ -97,7 +97,7 @@ class AssetManager:
     @staticmethod
     def load_taxi():
         """Load and scale the taxi obstacle sprite."""
-        path = f"images/taxi.png"
+        path = f"assets/images/taxi.png"
 
         img = AssetManager.load_sprite(
             path,
@@ -109,7 +109,7 @@ class AssetManager:
     @staticmethod
     def load_truck(num):
         """Load and scale a specific truck sprite."""
-        path = f"images/truck_{num}.png"
+        path = f"assets/images/truck_{num}.png"
 
         img = AssetManager.load_sprite(
             path,
@@ -121,7 +121,7 @@ class AssetManager:
     @staticmethod
     def load_explosion():
         """Load the explosion animation sprite."""
-        path = "images/explosion.png"
+        path = "assets/images/explosion.png"
         return AssetManager.load_sprite(
             path, 
             AssetManager.make_explosion_fallback

@@ -14,6 +14,7 @@ from state import GameState
 from managers.asset_manager import AssetManager
 from managers.obstacle_manager import ObstacleManager
 from managers.theme_manager import ThemeManager
+from managers.sound_manager import SoundManager
 from entities.road import Road
 from entities.player import PlayerCar
 
@@ -34,6 +35,8 @@ class Game:
         Container for current session data (score, speed, flags).
     theme : ThemeManager
         Controller for environmental Day/Night cycles.
+    sounds: SoundManager
+        Controller for music and sound effects. 
     """
     def __init__(self):
         self.init_pygame()
@@ -48,13 +51,14 @@ class Game:
     # INIT BLOCK
     # ----------------------------
     def init_pygame(self):
+        pg.mixer.pre_init(44100, -16, 2, 2048)
         pg.init()
         self.clock = pg.time.Clock()
 
     def init_screen(self):
         self.screen = pg.display.set_mode((C.WIDTH, C.HEIGHT))
         pg.display.set_caption("Car Racing")
-        pg.display.set_icon(pg.image.load("images/icon.png"))
+        pg.display.set_icon(pg.image.load("assets/images/icon.png"))
 
     def init_fonts(self):
         self.font_big = pg.font.SysFont("arial", 40, bold=True)
@@ -62,6 +66,7 @@ class Game:
 
     def init_managers(self):
         self.theme = ThemeManager()
+        self.sounds = SoundManager()
 
     # ----------------------------
     # ASSETS BLOCK
@@ -100,7 +105,6 @@ class Game:
         for num in range(2):
             self.truck_images.append(am.load_truck(num))
 
-
     # ----------------------------
     # RESET BLOCK
     # ----------------------------
@@ -119,6 +123,7 @@ class Game:
         self.reset_player()
         self.reset_enemies()
         self.reset_road()
+        self.reset_sounds()
 
     def reset_player(self):
         """Instantiate a new PlayerCar at the starting position."""
@@ -131,6 +136,10 @@ class Game:
     def reset_road(self):
         """Re-initialize the scrolling road background."""
         self.road = Road(self.road_img)
+
+    def reset_sounds(self):
+        self.sounds.reset()
+        self.sounds.pause()
 
     # ----------------------------
     # UPDATE BLOCK
@@ -163,14 +172,15 @@ class Game:
         to object updates to maintain a consistent speed regardless of FPS.
         """
         dt_sec = dt / 1000
-        self.state.time += dt_sec
-        self.player.update(keys)
+        self.player.update(keys, dt_sec)
         self.road.update(dt_sec, self.state.speed)
-        self.state.update_difficulty()
+        self.state.update(dt_sec)
+        self.sounds.update_engine(self.state.speed)
 
         if now - self.state.last_spawn >= self.state.spawn_interval:
             self.enemies.spawn(
                 self.state.max_enemies,
+                self.player.rect.centerx,
                 self.state.speed
             )
             self.state.last_spawn = now
@@ -284,6 +294,8 @@ class Game:
         -------
         None
         """
+        self.sounds.crash()
+        self.sounds.pause()
         self.show_explosion(enemy_rect)
         final_score = int(self.state.time * 10)
         self.is_new_record = self.highscore.save_if_better(final_score)
@@ -433,10 +445,17 @@ class Game:
 
                 if e.type == pg.KEYDOWN:
                     if e.key == pg.K_SPACE:
+                        self.sounds.click()
                         if not self.state.started:
                             self.state.started = True
+                            self.sounds.unpause()
                         else:
-                            self.state.paused = not self.state.paused
+                            if self.state.paused == False:
+                                self.state.paused = True
+                                self.sounds.pause()
+                            else:
+                                self.state.paused = False
+                                self.sounds.unpause()
                     elif e.key == pg.K_ESCAPE:
                         running = False
 

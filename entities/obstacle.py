@@ -3,20 +3,77 @@ from core.game_object import GameObject
 from config import Settings as C
 
 class Obstacle(GameObject):
-    def __init__(self, image, lane, y, speed, direction="SAME"):
+    """
+    A class representing an obstacle in the game world.
+
+    Obstacles are spawned on specific lanes and move downwards at a constant
+    speed. Inherits from the base GameObject class.
+
+    Parameters
+    ----------
+    image : pg.Surface
+        The visual representation (texture) of the obstacle.
+    lane : int
+        The index of the lane where the obstacle is positioned (0, 1, 2...).
+    y : int or float
+        The initial vertical coordinate.
+    speed : int or float
+        The vertical movement speed in pixels per second.
+
+    Attributes
+    ----------
+    lane : int
+        The current lane index of the obstacle.
+    speed : float
+        The speed at which the obstacle moves downward.
+    rect : pg.Rect
+        The rectangular area defining the position and size (inherited).
+    """
+
+    def __init__(self, image, lane, y, speed, direction=1):
         self.lane = lane
         self.speed = speed
         self.direction = direction
-        x = C.LANE_WIDTH * lane + C.LANE_WIDTH // 2
+        x = C.LANE_WIDTH * lane + C.LANE_OFFSET
         super().__init__(image, x, y)
 
+
     def update(self, dt_sec):
+        """
+        Update the obstacle's state by moving it down the screen.
+
+        Parameters
+        ----------
+        dt_sec : float
+            The time elapsed since the last frame in seconds (delta time).
+        """
         self.rect.y += self.speed * dt_sec
 
     def is_out(self):
-        return self.rect.y >= C.HEIGHT + C.CAR_HEIGHT
+        """
+        Check if the obstacle has moved completely off the bottom of the screen.
+
+        Returns
+        -------
+        bool
+            True if the obstacle is out of bounds, False otherwise.
+        """
+        return self.rect.y >= C.HEIGHT + C.CAR_HEIGHT + C.LIGHT_HEIGHT
 
     def collides(self, player_rect):
+        """
+        Determine if the obstacle's bounding box intersects with the player's.
+
+        Parameters
+        ----------
+        player_rect : pg.Rect
+            The rectangle representing the player's car hitbox.
+
+        Returns
+        -------
+        bool
+            True if a collision is detected, False otherwise.
+        """
         return self.rect.colliderect(player_rect)
 
     def draw(self, screen):
