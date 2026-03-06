@@ -1,7 +1,7 @@
 import math
 import pygame as pg
 
-def calculate_speed(time):
+def calculate_speed(time, base=240):
     """
     Calculate the game speed based on elapsed time using logarithmic scaling.
 
@@ -20,7 +20,6 @@ def calculate_speed(time):
     The speed follows the formula:
     base + log{4}(time + 1) * 60
     """
-    base = 240
     return base + math.log(time + 1, 4) * 60
 
 class GameState:
@@ -46,9 +45,10 @@ class GameState:
         Flag indicating whether the game logic is currently paused.
     """
 
-    def __init__(self):
+    def __init__(self, base=240):
         self.time = 0
-        self.speed = 4.0
+        self.base = base
+        self.speed = self.base
         self.max_enemies = 0.2
         self.spawn_interval = 1800
         self.last_spawn = pg.time.get_ticks()
@@ -70,6 +70,6 @@ class GameState:
             The time elapsed since the last frame in seconds (delta time).
         """
         self.time += dt_sec
-        self.speed = calculate_speed(self.time)
+        self.speed = calculate_speed(self.time, base=self.base)
         self.max_enemies = min(max(0.34, (self.time + 20) / 100), 0.67)
         self.spawn_interval = max(1400, 1800 - 10 * self.time)

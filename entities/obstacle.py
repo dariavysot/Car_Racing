@@ -30,11 +30,13 @@ class Obstacle(GameObject):
         The rectangular area defining the position and size (inherited).
     """
 
-    def __init__(self, image, lane, y, speed):
+    def __init__(self, image, lane, y, speed, direction=1):
         self.lane = lane
         self.speed = speed
+        self.direction = direction
         x = C.LANE_WIDTH * lane + C.LANE_OFFSET
         super().__init__(image, x, y)
+
 
     def update(self, dt_sec):
         """
@@ -56,7 +58,7 @@ class Obstacle(GameObject):
         bool
             True if the obstacle is out of bounds, False otherwise.
         """
-        return self.rect.y >= C.HEIGHT + C.CAR_HEIGHT
+        return self.rect.y >= C.HEIGHT + C.CAR_HEIGHT + C.LIGHT_HEIGHT
 
     def collides(self, player_rect):
         """
@@ -73,3 +75,30 @@ class Obstacle(GameObject):
             True if a collision is detected, False otherwise.
         """
         return self.rect.colliderect(player_rect)
+
+    def draw(self, screen):
+        """
+        Render the obstacle's body.
+
+        Parameters
+        ----------
+        screen : pg.Surface
+            Target surface for rendering.
+        """
+        super().draw(screen)
+
+    def draw_only_light(self, screen, is_night):
+        """
+        Render only the lighting effects for the obstacle.
+
+        This is used in the multi-pass rendering pipeline after the 
+        darkness overlay is applied.
+
+        Parameters
+        ----------
+        screen : pg.Surface
+            Target surface for rendering.
+        is_night : bool
+            Activation flag for night mode effects.
+        """
+        self.draw_lights(screen, is_night, self.direction)

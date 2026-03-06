@@ -1,6 +1,7 @@
 import random
 import pygame as pg
 from config import Settings as C
+from gameplay.collision import check_rect_collision
 from entities.obstacle import Obstacle
 
 
@@ -161,8 +162,9 @@ class ObstacleManager:
                 obstacle = Obstacle(
                     image,
                     lane,
-                    -C.HEIGHT / 2,
-                    speed
+                    - C.HEIGHT / 2,
+                    speed,
+                    direction=lane_type
                 )
                 candidates.append(obstacle)
 
@@ -219,11 +221,11 @@ class ObstacleManager:
             The obstacle involved in collision, or None if no collision.
         """
         for o in self.obstacles:
-            if o.collides(player_rect):
+            if check_rect_collision(player_rect, o.rect):
                 return o
         return None
 
-    def draw(self, screen):
+    def draw(self, screen, is_night):
         """
         Render all obstacles to the given surface.
 
@@ -234,3 +236,4 @@ class ObstacleManager:
         """
         for o in self.obstacles:
             o.draw(screen)
+            o.draw_only_light(screen, is_night)
