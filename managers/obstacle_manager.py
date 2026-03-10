@@ -65,6 +65,26 @@ class ObstacleManager:
         return TrafficType.OPPOSITE
 
     def detect_trapped_player(self, player_rects):
+        """
+        Identify if one of the players is physically sandwiched between another player 
+        and the road edge or between players with insufficient gap to maneuver.
+
+        This check is specifically designed for 2-player mode to prevent 
+        "impossible" spawn scenarios where players block each other's escape paths.
+
+        Parameters
+        ----------
+        player_rects : list of pg.Rect
+            A list containing the collision rectangles of the active players. 
+            Expected length is 2 for this logic to trigger.
+
+        Returns
+        -------
+        pg.Rect or None
+            The rect of the player who is considered 'trapped' and needs 
+            priority in safety calculations. Returns None if no player 
+            is trapped or if there is only one player.
+        """
         if len(player_rects) < 2:
             return None
 
@@ -82,6 +102,34 @@ class ObstacleManager:
         return None
 
     def escape_exists(self, start_lane, min_lane, max_lane, sim_obstacles):
+        """
+        Evaluate if a viable path exists from a starting lane within a 
+        given lane range over a temporal horizon.
+
+        Uses a breadth-first search (BFS) approach over a simulated time 
+        horizon to determine if a player can maneuver around obstacles 
+        without a collision.
+
+        Parameters
+        ----------
+        start_lane : int
+            The index of the lane where the player is currently located.
+        min_lane : int
+            The leftmost lane index available for maneuvers (e.g., 0 for full road 
+            or the start of a player's half-road).
+        max_lane : int
+            The rightmost lane index available for maneuvers (e.g., C.LANES - 1).
+        sim_obstacles : list of Obstacle
+            The collection of obstacles (existing and proposed) to include 
+            in the pathfinding simulation.
+
+        Returns
+        -------
+        bool
+            True if there is at least one sequence of lane shifts (left, right, 
+            or stay) that avoids all obstacles over the simulation horizon; 
+            False otherwise.
+        """
         dt = 0.05
         horizon = 3.0
         steps = int(horizon / dt)
