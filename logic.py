@@ -99,7 +99,7 @@ class Game:
         self.truck_images = []
         colors = ["red", "blue", "yellow", "orange", "purple", "green"]
         for color in colors:
-            if color != C.PLAYER_COLOR:
+            if not color in C.PLAYERS_COLORS:
                 self.car_images.append(am.load_car(color))
         self.car_images.append(am.load_taxi())
         for num in range(2):
@@ -120,14 +120,28 @@ class Game:
         self.state.paused = False
 
         self.theme.reset()
-        self.reset_player()
+        self.reset_players()
         self.reset_enemies()
         self.reset_road()
         self.reset_sounds()
 
-    def reset_player(self):
-        """Instantiate a new PlayerCar at the starting position."""
+
+    def reset_players(self):
         self.player = PlayerCar(self.player_img)
+
+    def update_players(self, keys, dt_sec):
+        self.player.update(keys, dt_sec)
+
+
+    def draw_players(self):
+        self.player.draw(self.screen)
+
+    def draw_player_lights(self):
+        self.player.draw_only_light(self.screen, self.theme.is_night)
+
+
+    def get_player_rects(self):
+        return [self.player.rect]
 
     def reset_enemies(self):
         """Clear and re-initialize the obstacle management system."""
@@ -172,7 +186,7 @@ class Game:
         to object updates to maintain a consistent speed regardless of FPS.
         """
         dt_sec = dt / 1000
-        self.player.update(keys, dt_sec)
+        self.update_players(keys, dt_sec)
         self.road.update(dt_sec, self.state.speed)
         self.state.update(dt_sec)
         self.sounds.update_engine(self.state.speed)
@@ -180,7 +194,7 @@ class Game:
         if now - self.state.last_spawn >= self.state.spawn_interval:
             self.enemies.spawn(
                 self.state.max_enemies,
-                self.player.rect.centerx,
+                self.get_player_rects(),
                 self.state.speed
             )
             self.state.last_spawn = now
@@ -190,7 +204,12 @@ class Game:
 
     def check_collisions(self):
         """Perform collision detection between the player and traffic."""
-        return self.enemies.check_collision(self.player.rect)
+        for rect in self.get_player_rects():
+            crash = self.enemies.check_collision(rect)
+            if crash:
+                return crash
+
+        return None
 
     # ----------------------------
     # DRAW BLOCK
@@ -219,16 +238,10 @@ class Game:
         self.screen.fill(C.GRAY)
         self.road.draw(self.screen)
 
-        for enemy in self.enemies.obstacles:
-            enemy.draw(self.screen)
-        self.player.draw(self.screen)
-
         self.theme.apply(self.screen)
-
-        for enemy in self.enemies.obstacles:
-            enemy.draw_only_light(self.screen, self.theme.is_night)
-
-        self.player.draw_only_light(self.screen, self.theme.is_night)
+        self.enemies.draw(self.screen, self.theme.is_night)
+        self.draw_players()
+        self.draw_player_lights()
 
         self.draw_score(dt)
 
@@ -332,12 +345,9 @@ class Game:
 
         self.road.draw(self.screen)
 
-        for e in self.enemies.obstacles: e.draw(self.screen)
-        self.player.draw(self.screen)
-        
         self.theme.apply(self.screen)
-
-        for e in self.enemies.obstacles: e.draw_only_light(self.screen, self.theme.is_night)
+        self.enemies.draw(self.screen, self.theme.is_night)
+        self.player.draw(self.screen)
         self.player.draw_only_light(self.screen, self.theme.is_night)
 
         expl = pg.transform.smoothscale(self.explosion_img, (120, 120))
