@@ -5,7 +5,7 @@ This module provides the `GameConfig` class to parse terminal arguments
 and apply them to the global game settings, allowing customization of 
 player colors and game modes.
 """
-
+import sys
 import argparse
 from config import Settings as C
 
@@ -42,8 +42,7 @@ class GameConfig:
         parser.add_argument(
             "--players",
             type=int,
-            choices=[1,2],
-            default=1,
+            choices=[1, 2],
             help="Set to 2 for competitive mode"
         )
 
@@ -62,10 +61,10 @@ class GameConfig:
         args = parser.parse_args()
 
         if args.players != 2:
-            if args.car1_color or args.car2_color:
+            if "--car1-color" in sys.argv or "--car2-color" in sys.argv:
                 parser.error("--car1-color and --car2-color require --players 2")
 
-        GameConfig.apply(args)
+        return args
 
     @staticmethod
     def apply(args):
@@ -87,3 +86,6 @@ class GameConfig:
             # Fallback to defaults if specific colors aren't provided
             C.PLAYER1_COLOR = args.car1_color or "blue"
             C.PLAYER2_COLOR = args.car2_color or "red"
+
+        # Update global player count setting
+        C.NUM_PLAYERS = args.players

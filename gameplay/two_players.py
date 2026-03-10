@@ -90,6 +90,7 @@ class TwoPlayersGame:
         self.explosion_img = assets["explosion"]
 
         self.reset()
+        self.sounds.pause()
 
     # ----------------------------
     # RESET
@@ -259,7 +260,8 @@ class TwoPlayersGame:
 
         self.theme.apply(self.screen)
 
-        self.enemies.draw(self.screen, self.theme.is_night)
+        for o in self.enemies.obstacles:
+            o.draw_only_light(self.screen, self.theme.is_night)
         self.player1.draw_only_light(self.screen, self.theme.is_night)
         self.player2.draw_only_light(self.screen, self.theme.is_night)
 
@@ -339,7 +341,9 @@ class TwoPlayersGame:
         self.theme.apply(self.screen)
 
         # 4. Additive Emissive Pass
-        self.enemies.draw(self.screen, self.theme.is_night)
+        for o in self.enemies.obstacles:
+            o.draw_only_light(self.screen, self.theme.is_night)
+            
         self.player1.draw_only_light(self.screen, self.theme.is_night)
         self.player2.draw_only_light(self.screen, self.theme.is_night)
 
