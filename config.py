@@ -63,3 +63,12 @@ class Settings:
     NUM_PLAYERS = 1
     PLAYER1_COLOR = "blue"
     PLAYER2_COLOR = "red"
+
+    PLAYERS_COLORS = ["red"]
+
+    @classmethod
+    def update_players_colors(cls):
+        if cls.NUM_PLAYERS == 1:
+            cls.PLAYERS_COLORS = [cls.PLAYER_COLOR]
+        else:
+            cls.PLAYERS_COLORS = [cls.PLAYER1_COLOR, cls.PLAYER2_COLOR]

@@ -9,6 +9,7 @@ avoiding obstacles and competing for survival.
 import pygame as pg
 import sys
 
+from logic import Game
 from config import Settings as C
 from state import GameState
 from managers.obstacle_manager import ObstacleManager
@@ -19,7 +20,7 @@ from managers.theme_manager import ThemeManager
 from managers.sound_manager import SoundManager
 
 
-class TwoPlayersGame:
+class TwoPlayersGame(Game):
     """
     Manager for the two-player competitive racing mode.
 
@@ -48,75 +49,12 @@ class TwoPlayersGame:
     theme : ThemeManager
         Handles the day/night cycle transitions and dark overlay effects.
     """
-    def __init__(self, assets):
-        """
-        Initialize the TwoPlayersGame instance.
-
-        Sets up the display surface, timing controls, and loads all necessary
-        graphical and text assets from the provided shared resource dictionary.
-
-        Parameters
-        ----------
-        assets : dict
-            A dictionary containing shared game resources. Expected keys:
-
-            - 'screen' : pygame.Surface
-                The main window surface for rendering.
-            - 'clock' : pygame.time.Clock
-                The clock object used to control the game's frame rate.
-            - 'font_big' : pygame.font.Font
-                Font object used for large UI elements like "GAME OVER".
-            - 'font_small' : pygame.font.Font
-                Font object used for smaller instructions and hints.
-            - 'road' : pygame.Surface
-                The background image for the racing track.
-            - 'cars' : list of pygame.Surface
-                A collection of car sprites for obstacles.
-            - 'trucks' : list of pygame.Surface
-                A collection of truck sprites for obstacles.
-            - 'explosion' : pygame.Surface
-                The sprite used for the crash animation.
-        """
-        self.screen = assets["screen"]
-        self.clock = assets["clock"]
-        self.font_big = assets["font_big"]
-        self.font_small = assets["font_small"]
-        self.theme = ThemeManager()
-        self.sounds = SoundManager()
-
-        self.road_img = assets["road"]
-        self.car_images = assets["cars"]
-        self.truck_images = assets["trucks"]
-        self.explosion_img = assets["explosion"]
-
-        self.reset()
-        self.sounds.pause()
 
     # ----------------------------
     # RESET
     # ----------------------------
-    def reset(self):
-        """
-        Reset the game state and reinitialize players and managers.
 
-        Restores difficulty settings, clears existing obstacles, repositions 
-        both players, and resets the environmental theme to daylight.
-
-        Returns
-        -------
-        None
-        """
-        self.state = GameState()
-        self.state.started = False
-        self.state.paused = False
-
-        self.theme.reset()
-        self.sounds.reset()
-        self.sounds.pause()
-
-        self.road = Road(self.road_img)
-        self.enemies = ObstacleManager(self.car_images, self.truck_images)
-
+    def reset_players(self):
         player1_img = AssetManager.load_car(C.PLAYER1_COLOR)
         player2_img = AssetManager.load_car(C.PLAYER2_COLOR)
 
@@ -148,31 +86,7 @@ class TwoPlayersGame:
     # ----------------------------
     # UPDATE
     # ----------------------------
-    def update(self, keys, dt, now):
-        """
-        Update the game logic, object positions, and environmental effects.
-
-        Handles time-based difficulty scaling, environmental day/night transitions,
-        player movement, obstacle spawning, and movement of the road.
-
-        Parameters
-        ----------
-        keys : pygame.key.ScancodeWrapper
-            The state of all keyboard buttons.
-        dt : int
-            Time passed since the last frame in milliseconds.
-        now : int
-            Current time in milliseconds since pygame.init() was called.
-
-        Returns
-        -------
-        None
-        """
-        dt_sec = dt / 1000
-        self.state.update(dt_sec)
-
-        self.theme.update(dt)
-
+    def update_players(self, keys, dt_sec):
         self.player1.update(keys, dt_sec)
         self.player2.update(keys, dt_sec)
 
@@ -180,26 +94,22 @@ class TwoPlayersGame:
             0,
             min(self.player1.rect.x, C.WIDTH - self.player1.rect.width)
         )
+
         self.player2.rect.x = max(
             0,
             min(self.player2.rect.x, C.WIDTH - self.player2.rect.width)
         )
 
-        self.road.update(dt_sec, self.state.speed)
-
-        if now - self.state.last_spawn >= self.state.spawn_interval:
-            self.enemies.spawn(
-                self.state.max_enemies,
-                self.state.speed
-            )
-            self.state.last_spawn = now
-
-        self.enemies.update(dt_sec)
-        self.check_collisions()
-
     # ----------------------------
     # COLLISIONS
     # ----------------------------
+
+    def get_player_rects(self):
+        return [
+            self.player1.rect,
+            self.player2.rect
+        ]
+
     def check_collisions(self):
         """
         Detect and resolve interactions between players and obstacles.
@@ -218,23 +128,23 @@ class TwoPlayersGame:
         Player-to-player collision logic uses the `direction` attribute
         to determine fault (e.g., which player swerved into the other).
         """
+        if self.player1.rect.colliderect(self.player2.rect):
+            if self.player1.direction == 1:
+                self.handle_result(True, False)
+            elif self.player2.direction == -1:
+                self.handle_result(False, True)
+            else:
+                self.handle_result(True, True)
+            return None
+        
         crash1 = self.enemies.check_collision(self.player1.rect)
         crash2 = self.enemies.check_collision(self.player2.rect)
 
-        if self.player1.rect.colliderect(self.player2.rect):
-
-            # Player1 зліва врізається тільки рухаючись вправо
-            if self.player1.direction == 1:
-                self.handle_result(True, False)
-                return
-
-            # Player2 справа врізається тільки рухаючись вліво
-            elif self.player2.direction == -1:
-                self.handle_result(False, True)
-                return
-
         if crash1 or crash2:
-            self.handle_result(crash1, crash2)
+            self.handle_result(bool(crash1), bool(crash2))
+            return None
+
+        return None
 
     def show_explosion(self, crash1, crash2):
         """
@@ -253,17 +163,13 @@ class TwoPlayersGame:
         """
         self.road.draw(self.screen)
 
-        for o in self.enemies.obstacles:
-            o.draw(self.screen)
-        self.player1.draw(self.screen)
-        self.player2.draw(self.screen)
-
         self.theme.apply(self.screen)
 
-        for o in self.enemies.obstacles:
-            o.draw_only_light(self.screen, self.theme.is_night)
-        self.player1.draw_only_light(self.screen, self.theme.is_night)
-        self.player2.draw_only_light(self.screen, self.theme.is_night)
+        self.draw_players()
+
+        self.enemies.draw(self.screen, self.theme.is_night)
+
+        self.draw_player_lights()
 
         expl = pg.transform.smoothscale(self.explosion_img, (120, 120))
         if crash1:
@@ -316,56 +222,22 @@ class TwoPlayersGame:
     # ----------------------------
     # DRAW
     # ----------------------------
-    def draw(self):
-        """
-        Render all game objects to the screen.
-
-        Draws the road, obstacles, and players. Displays a start message
-        if the game has not yet begun.
-
-        Returns
-        -------
-        None
-        """
-        # 1. Base / Opaque Pass
-        self.screen.fill(C.GRAY)
-        self.road.draw(self.screen)
-
-        # 2. Render physical entities
-        for o in self.enemies.obstacles:
-            o.draw(self.screen)
+    def draw_players(self):
         self.player1.draw(self.screen)
         self.player2.draw(self.screen)
 
-        # 3. Apply Light Mask
-        self.theme.apply(self.screen)
-
-        # 4. Additive Emissive Pass
-        for o in self.enemies.obstacles:
-            o.draw_only_light(self.screen, self.theme.is_night)
-            
+    def draw_player_lights(self):
         self.player1.draw_only_light(self.screen, self.theme.is_night)
         self.player2.draw_only_light(self.screen, self.theme.is_night)
 
-        if not self.state.started:
-            text = self.font_big.render("Press SPACE to start", True, C.WHITE)
-            rect = text.get_rect(center=(C.WIDTH // 2, C.HEIGHT // 2))
-            self.screen.blit(text, rect)
-
-        pg.display.flip()
-
-    # ----------------------------
-    # GAME OVER
-    # ----------------------------
     def show_game_over(self, result_text):
-        """
-        Display the final results and restart instructions on the screen.
-
+        """ Display the final results and restart instructions on the screen.
+        
         Parameters
         ----------
         result_text : str
             The message indicating who won or if it was a draw.
-
+        
         Returns
         -------
         None
@@ -380,87 +252,5 @@ class TwoPlayersGame:
 
         press = self.font_small.render("Press any key to restart", True, C.WHITE)
         self.screen.blit(press, press.get_rect(center=(cx, cy + 80)))
-
+        
         pg.display.flip()
-
-    def wait_for_restart(self):
-        """
-        Halt execution and wait for user input to restart.
-
-        Returns
-        -------
-        None
-        """
-        waiting = True
-        while waiting:
-            for e in pg.event.get():
-                if e.type == pg.QUIT:
-                    pg.quit()
-                    sys.exit()
-                if e.type == pg.KEYDOWN:
-                    waiting = False
-            self.clock.tick(30)
-
-    # ----------------------------
-    # MAIN LOOP
-    # ----------------------------
-    def run(self):
-        """
-        Execute the main game loop for the two-player mode.
-
-        This method handles the continuous cycle of event processing,
-        physics/logic updates, and frame rendering until the user
-        exits or the process is terminated.
-
-        Parameters
-        ----------
-        None
-            This method does not take external parameters as it uses
-            the instance's internal state.
-
-        Returns
-        -------
-        None
-            The method returns only when the application is closed.
-
-        Notes
-        -----
-        The loop uses `self.clock.tick(C.FPS)` to maintain a stable
-        frame rate and calculates `dt` for frame-independent movement.
-        """
-        running = True
-
-        while running:
-            dt = self.clock.tick(C.FPS)
-            now = pg.time.get_ticks()
-
-            for e in pg.event.get():
-                if e.type == pg.QUIT:
-                    running = False
-
-                if e.type == pg.KEYDOWN:
-                    if e.key == pg.K_SPACE:
-                        self.sounds.click()
-                        if not self.state.started:
-                            self.state.started = True
-                            self.sounds.unpause()
-                        else:
-                            if self.state.paused == False:
-                                self.state.paused = True
-                                self.sounds.pause()
-                            else:
-                                self.state.paused = False
-                                self.sounds.unpause()
-
-                    elif e.key == pg.K_ESCAPE:
-                        running = False
-
-            keys = pg.key.get_pressed()
-
-            if self.state.started and not self.state.paused:
-                self.update(keys, dt, now)
-
-            self.draw()
-
-        pg.quit()
-        sys.exit()
