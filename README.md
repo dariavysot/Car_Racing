@@ -34,7 +34,7 @@ The project follows a manager-based pattern to maintain a decoupled and scalable
 | Role | Developer | Key Contributions |
 | :--- | :--- | :--- |
 | **Core & Architecture** | **Daria Vysotska** | `GameState` management, Player logic, Design, CLI, and `ThemeManager` (Day/Night cycles). |
-| **Math & Obstacles** | **Illya Marchuk** | Engine core, traffic $k$-factor algorithm, logarithmic speed scaling, and obstacle collision avoidance. |
+| **Math & Obstacles** | **Illya Marchuk** | Engine core, traffic $k$-factor algorithm, logarithmic speed scaling, obstacle collision avoidance and `SoundManager` (dynamic audio engine scaling).|
 | **Logic & UI** | **Elizaveta Bondarenko** | AABB collision system, Versus mode implementation, HUD/UI, CLI, and high-score persistence. |
 
 ## 📝 Usage
@@ -66,5 +66,8 @@ python main.py [-h] [--car-color COLOR | --players 2 [--car1-color COLOR] [--car
  Clone the repository:
    ```bash
    git clone [https://github.com/your-username/Car-Racing-game.git](https://github.com/your-username/Car-Racing-game.git)
+   ```
+   
+   ```bash
    cd Car-Racing
    ```
