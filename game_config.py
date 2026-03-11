@@ -42,7 +42,7 @@ class GameConfig:
         group.add_argument(
             "--players",
             type=int,
-            choices=[2],
+            choices=[1, 2],
             help="Set to 2 for competitive mode"
         )
 
@@ -86,3 +86,5 @@ class GameConfig:
             # Fallback to defaults if specific colors aren't provided
             C.PLAYER1_COLOR = args.car1_color or "blue"
             C.PLAYER2_COLOR = args.car2_color or "red"
+
+        C.update_players_colors()

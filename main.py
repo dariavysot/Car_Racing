@@ -12,17 +12,4 @@ if __name__ == "__main__":
     if C.NUM_PLAYERS == 1:
         Game().run()
     else:
-        base_game = Game()
-
-        assets = {
-            "screen": base_game.screen,
-            "clock": base_game.clock,
-            "font_big": base_game.font_big,
-            "font_small": base_game.font_small,
-            "road": base_game.road_img,
-            "cars": base_game.car_images,
-            "trucks": base_game.truck_images,
-            "explosion": base_game.explosion_img,
-        }
-
-        TwoPlayersGame(assets).run()
+        TwoPlayersGame().run()
