@@ -12,10 +12,10 @@ def test_game_state_initialization():
 def test_pause_toggle_logic():
     """Тест: чи коректно працює логіка паузи"""
     state = GameState()
-    
-    # Імітуємо натискання пробілу (код з твого Game.run)
+
+    # Імітуємо натискання пробілу
     state.paused = not state.paused
     assert state.paused is True
-    
+
     state.paused = not state.paused
     assert state.paused is False
