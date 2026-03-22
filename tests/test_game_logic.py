@@ -23,10 +23,12 @@ def mock_game():
          patch('os.path.exists', return_value=True), \
          patch('pygame.mixer.init'), \
          patch('pygame.mixer.pre_init'), \
-         patch('managers.sound_manager.SoundManager'): 
+         patch('pygame.mixer.Sound'), \
+         patch('pygame.mixer.music'), \
+         patch('managers.sound_manager.SoundManager'):
 
         pg.font.init()
- 
+
         game = Game()
 
         game.sounds = MagicMock()
