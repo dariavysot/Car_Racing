@@ -56,6 +56,18 @@ def test_check_collisions_no_enemies(mock_game):
     # Метод має повернути None (зіткнень немає)
     assert mock_game.check_collisions() is None
 
+def test_collision_logic_trigger(mock_game):
+    """Перевірка методу колізій, коли ворогів немає"""
+    enemy_mock = MagicMock()
+    enemy_mock.rect = pg.Rect(0, 0, 10, 10)
+
+    mock_game.enemies.check_collision = MagicMock(return_value=enemy_mock)
+
+    result = mock_game.check_collisions()
+
+    # Перевіряємо, що гра отримала об'єкт ворога (зіткнення відбулося)
+    assert result == enemy_mock
+
 @pytest.mark.parametrize("initial_pause_state, expected_final_state", [
     (False, True),
     (True, False)
