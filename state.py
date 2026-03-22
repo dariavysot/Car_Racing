@@ -53,6 +53,7 @@ class GameState:
         self.spawn_interval = 1800
         self.last_spawn = pg.time.get_ticks()
         self.paused = False
+        self.started = False
 
     def reset(self):
         """
