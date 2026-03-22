@@ -54,8 +54,6 @@ python main.py [-h] [--car-color COLOR | --players 2 [--car1-color COLOR] [--car
 | **Start / Pause** | `Space` | — |
 | **Exit** | `Esc` | — |
 
----
-
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -65,9 +63,40 @@ python main.py [-h] [--car-color COLOR | --players 2 [--car1-color COLOR] [--car
 ### Setup
  Clone the repository:
    ```bash
-   git clone [https://github.com/your-username/Car-Racing-game.git](https://github.com/your-username/Car-Racing-game.git)
+   git clone https://github.com/dariavysot/Car_Racing.git
    ```
    
    ```bash
    cd Car-Racing
    ```
+   
+## 🧪 Testing & Quality Assurance
+
+Project uses **Pytest** for automated unit testing and **Pytest-Cov** for code coverage analysis.  
+To ensure stability, we implement extensive mocking of Pygame hardware components (audio/video), allowing tests to run in headless environments (CI/CD).
+
+### 📦 Dependencies Setup
+
+Before running tests or the game, install all required packages:
+
+```bash
+pip install -r requirements.txt
+```
+### 🏃 Running Tests
+
+To run all unit tests and verify the game logic:
+
+```bash
+pytest
+```
+
+### 📊 Code Coverage & HTML Reports
+
+To generate a detailed visual report of which code lines are tested:
+
+### Bash
+```bash
+pytest --cov=. --cov-report=html --html=report.html --self-contained-html
+```
+- **Test Report:** Open `report.html` in your browser to see test results.
+- **Coverage Map:** Open `htmlcov/index.html` to see an interactive line-by-line coverage analysis.
