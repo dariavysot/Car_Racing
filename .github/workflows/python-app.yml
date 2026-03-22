@@ -14,8 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
@@ -24,22 +25,28 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Lint with flake8
       run: |
         # зупинить білд, якщо є помилки синтаксису або невизначені змінні
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # попередження (exit-zero) для всіх інших стилістичних речей
+        # попередження (exit-zero) для стилістичних речей
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Test with pytest
+    - name: Test with pytest and generate Coverage
       run: |
-        # запускаємо тести та генеруємо HTML звіт
-        pytest --html=report.html --self-contained-html
+        # Запускаємо тести:
+        # --cov=. : рахуємо покриття для всього проєкту
+        # --cov-report=html : створюємо детальну папку htmlcov
+        # --html=report.html : створюємо загальний звіт про проходження тестів
+        pytest --cov=. --cov-report=html --html=report.html --self-contained-html
 
-    - name: Upload Test Report
+    - name: Upload Quality Reports
+      if: always() # завантажувати навіть якщо тести впали, щоб побачити помилки
       uses: actions/upload-artifact@v4
       with:
-        name: pytest-report
-        path: report.html
+        name: quality-reports
+        path: |
+          report.html
+          htmlcov/
