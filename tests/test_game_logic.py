@@ -6,7 +6,7 @@ from logic import Game
 
 @pytest.fixture
 def mock_game():
-    fake_surface = pg.Surface((1, 1))
+    fake_surface = pg.Surface((10, 10))
 
     # Створюємо Mock для зображень
     mock_surface_obj = MagicMock(spec=pg.Surface)
@@ -22,16 +22,16 @@ def mock_game():
          patch('pygame.transform.smoothscale', return_value=fake_surface), \
          patch('os.path.exists', return_value=True), \
          patch('pygame.mixer.init'), \
-         patch('pygame.mixer.pre_init'), \
-         patch('pygame.mixer.Sound'), \
-         patch('pygame.mixer.music'), \
-         patch('managers.sound_manager.SoundManager'):
+         patch('pygame.mixer.stop'), \
+         patch('logic.SoundManager') as mock_sound_class:
+
+        # Налаштовуємо мок екземпляра
+        mock_sound_instance = mock_sound_class.return_value
 
         pg.font.init()
 
         game = Game()
-
-        game.sounds = MagicMock()
+        game.sounds = mock_sound_instance
 
         return game
 
