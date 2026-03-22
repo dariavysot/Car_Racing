@@ -13,7 +13,7 @@ def mock_game():
     mock_surface_obj.convert_alpha.return_value = fake_surface
     mock_surface_obj.get_rect.return_value = fake_surface.get_rect()
 
-    # мокаємо весь SoundManager ще до створення гри
+    # Мокаємо все, що торкається заліза (відео, звук, файли)
     with patch('pygame.display.set_mode'), \
          patch('pygame.display.set_caption'), \
          patch('pygame.display.set_icon'), \
@@ -21,13 +21,12 @@ def mock_game():
          patch('pygame.font.SysFont'), \
          patch('pygame.transform.smoothscale', return_value=fake_surface), \
          patch('os.path.exists', return_value=True), \
-         patch('managers.sound_manager.SoundManager'): # <--- МОКАЄМО ВЕСЬ КЛАС ЗВУКУ
+         patch('pygame.mixer.init'), \
+         patch('pygame.mixer.pre_init'), \
+         patch('managers.sound_manager.SoundManager'): 
 
         pg.font.init()
-        # Ініціалізуємо міксер, щоб pygame не видавав помилок ініціалізації
-        if not pg.mixer.get_init():
-            pg.mixer.init()
-
+ 
         game = Game()
 
         game.sounds = MagicMock()
