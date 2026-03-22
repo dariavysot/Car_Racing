@@ -1,6 +1,15 @@
 __pycache__/
 *.py[cod]
+*$py.class
+
 .venv/
 .vscode/
 .idea/
+
 .storage/highscore.txt
+
+.coverage
+htmlcov/
+report.html
+.pytest_cache/
+assets/pytest-report/
