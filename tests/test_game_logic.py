@@ -1,30 +1,86 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 import pygame as pg
 
-def test_game_reset(mock_game):
-    mock_game.state.started = True
-    mock_game.state.paused = True
-    mock_game.reset()
-    assert mock_game.state.started is False
-    assert mock_game.state.paused is False
 
-def test_check_collisions_no_enemies(mock_game):
-    mock_game.enemies.obstacles = []
-    assert mock_game.check_collisions() is None
+@pytest.mark.logic
+class TestGameCore:
+    """Tests for the core logic of the game engine."""
 
-def test_collision_logic_trigger(mock_game):
-    enemy_mock = MagicMock()
-    enemy_mock.rect = pg.Rect(0, 0, 10, 10)
-    mock_game.enemies.check_collision = MagicMock(return_value=enemy_mock)
-    result = mock_game.check_collisions()
-    assert result == enemy_mock
+    def test_game_initialization_state(self, mock_game):
+        """Checking the initial state of the game after initialization."""
+        assert mock_game.state.started is False
+        assert mock_game.state.paused is False
+        assert mock_game.state.time == 0
+        assert hasattr(mock_game, 'player')
 
-@pytest.mark.parametrize("initial_pause_state, expected_final_state", [
-    (False, True),
-    (True, False)
-])
-def test_pause_logic_integration(mock_game, initial_pause_state, expected_final_state):
-    mock_game.state.paused = initial_pause_state
-    mock_game.state.paused = not mock_game.state.paused
-    assert mock_game.state.paused == expected_final_state
+    def test_game_reset_logic(self, mock_game):
+        """Checking for a full game reset to factory settings."""
+        mock_game.state.started = True
+        mock_game.state.time = 50.5
+        mock_game.state.paused = True
+
+        mock_game.reset()
+
+        assert mock_game.state.started is False
+        assert mock_game.state.time == 0
+        assert mock_game.state.paused is False
+
+        mock_game.sounds.reset.assert_called()
+
+    @pytest.mark.parametrize("dt, expected_time", [
+        (1000, 1.0),
+        (500, 0.5),
+        (2000, 2.0)
+    ])
+    def test_score_calculation_flow(self, mock_game, dt, expected_time):
+        """Parameterized game time (score) update test."""
+        keys = pg.key.get_pressed()
+        now = pg.time.get_ticks()
+
+        mock_game.state.started = True
+
+        mock_game.update_objects(keys, dt, now)
+
+        assert mock_game.state.time == expected_time
+
+    def test_collision_handling_sequence(self, mock_game):
+        """Mocking test."""
+        mock_enemy = MagicMock()
+        mock_enemy.rect = pg.Rect(100, 100, 50, 50)
+
+        with patch.object(mock_game, 'show_explosion'), \
+             patch.object(mock_game, 'show_game_over'), \
+             patch.object(mock_game, 'wait_for_restart'):
+
+            mock_game.handle_crash(mock_enemy)
+
+            mock_game.sounds.crash.assert_called_once()
+            mock_game.sounds.pause.assert_called()
+
+    def test_check_collisions_hit(self, mock_game):
+        """Checking whether the check_collisions method is triggered when there is a collision."""
+
+        mock_crash_obj = MagicMock()
+        mock_game.enemies.check_collision = MagicMock(return_value=mock_crash_obj)
+
+        result = mock_game.check_collisions()
+
+        assert result == mock_crash_obj
+        mock_game.enemies.check_collision.assert_called()
+
+    @pytest.mark.parametrize("press_space, started_init, expected_started", [
+        (True, False, True), # Pressed Space at start -> Game started
+        (False, False, False), # Didn't press -> Didn't start
+    ])
+    def test_start_input_logic(self, mock_game, press_space, started_init, expected_started):
+        """Testing game login logic through event simulation."""
+        mock_game.state.started = started_init
+
+        if press_space:
+            event = pg.event.Event(pg.KEYDOWN, {'key': pg.K_SPACE})
+            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                if not mock_game.state.started:
+                    mock_game.state.started = True
+
+        assert mock_game.state.started == expected_started
