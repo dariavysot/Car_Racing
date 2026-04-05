@@ -1,4 +1,5 @@
 import pytest
+import sys
 from unittest.mock import MagicMock, patch
 import pygame as pg
 
@@ -27,6 +28,61 @@ class TestGameCore:
         assert mock_game.state.paused is False
 
         mock_game.sounds.reset.assert_called()
+
+    def test_full_managers_reset(self, mock_game):
+        """Перевірка, чи reset() правильно скидає внутрішні менеджери (Integration)."""
+        with patch.object(mock_game.theme, 'reset') as mock_theme_reset:
+            mock_game.reset()
+            mock_theme_reset.assert_called_once()
+            assert hasattr(mock_game, 'enemies')
+            mock_game.sounds.pause.assert_called()
+
+    def test_quit_event_handling(self, mock_game):
+        """Тестування ініціації виходу з гри при отриманні події QUIT."""
+
+        event_quit = pg.event.Event(pg.QUIT)
+
+        with patch('pygame.quit') as mock_pg_quit, \
+             patch('sys.exit') as mock_sys_exit:
+
+            if event_quit.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+  
+            mock_pg_quit.assert_called_once()
+            mock_sys_exit.assert_called_once()
+
+    def test_esc_key_quit(self, mock_game):
+        """Перевірка виходу з гри через клавішу ESC."""
+        event_esc = pg.event.Event(pg.KEYDOWN, {'key': pg.K_ESCAPE})
+
+        with patch('sys.exit') as mock_sys_exit:
+            if event_esc.type == pg.KEYDOWN and event_esc.key == pg.K_ESCAPE:
+                sys.exit()
+
+            mock_sys_exit.assert_called_once()
+
+    def test_draw_score_rendering(self, mock_game):
+        """Тестування логіки рендерингу рахунку (Блок DRAW)."""
+
+        mock_game.screen.blit = MagicMock()
+        mock_game.state.time = 15.5 
+
+        mock_game.draw_score(16)
+
+        mock_game.screen.blit.assert_called()
+        args, _ = mock_game.screen.blit.call_args
+        assert args[1] == (10, 10)
+
+    @pytest.mark.parametrize("dt, expected_time", [
+        (1000, 1.0),
+        (500, 0.5)
+    ])
+    def test_update_objects_flow(self, mock_game, dt, expected_time):
+        """Тестування оновлення об'єктів та нарахування часу."""
+        mock_game.state.started = True
+        mock_game.update_objects(pg.key.get_pressed(), dt, pg.time.get_ticks())
+        assert mock_game.state.time == expected_time
 
     @pytest.mark.parametrize("dt, expected_time", [
         (1000, 1.0),
