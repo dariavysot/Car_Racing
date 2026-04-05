@@ -30,7 +30,7 @@ class TestGameCore:
         mock_game.sounds.reset.assert_called()
 
     def test_full_managers_reset(self, mock_game):
-        """Перевірка, чи reset() правильно скидає внутрішні менеджери (Integration)."""
+        """Checking if reset() correctly resets internal managers (Integration)."""
         with patch.object(mock_game.theme, 'reset') as mock_theme_reset:
             mock_game.reset()
             mock_theme_reset.assert_called_once()
@@ -38,7 +38,7 @@ class TestGameCore:
             mock_game.sounds.pause.assert_called()
 
     def test_quit_event_handling(self, mock_game):
-        """Тестування ініціації виходу з гри при отриманні події QUIT."""
+        """Testing the initiation of game exit when receiving a QUIT event."""
 
         event_quit = pg.event.Event(pg.QUIT)
 
@@ -53,7 +53,7 @@ class TestGameCore:
             mock_sys_exit.assert_called_once()
 
     def test_esc_key_quit(self, mock_game):
-        """Перевірка виходу з гри через клавішу ESC."""
+        """Checking exiting the game via the ESC key."""
         event_esc = pg.event.Event(pg.KEYDOWN, {'key': pg.K_ESCAPE})
 
         with patch('sys.exit') as mock_sys_exit:
@@ -63,7 +63,7 @@ class TestGameCore:
             mock_sys_exit.assert_called_once()
 
     def test_draw_score_rendering(self, mock_game):
-        """Тестування логіки рендерингу рахунку (Блок DRAW)."""
+        """Testing the account rendering logic (DRAW block)."""
 
         mock_game.screen.blit = MagicMock()
         mock_game.state.time = 15.5 
@@ -79,7 +79,7 @@ class TestGameCore:
         (500, 0.5)
     ])
     def test_update_objects_flow(self, mock_game, dt, expected_time):
-        """Тестування оновлення об'єктів та нарахування часу."""
+        """Testing object updates and timing."""
         mock_game.state.started = True
         mock_game.update_objects(pg.key.get_pressed(), dt, pg.time.get_ticks())
         assert mock_game.state.time == expected_time
