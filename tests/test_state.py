@@ -1,21 +1,26 @@
 import pytest
 from state import GameState
 
-def test_game_state_initialization():
-    """Тест: чи правильно ініціалізується стан гри"""
-    state = GameState()
-    assert state.started is False
-    assert state.paused is False
-    # Перевіримо, чи початкова швидкість відповідає налаштуванням
-    assert state.speed > 0
+@pytest.mark.state
+class TestGameState:
+    def test_game_state_initialization(self):
+        """Checking for clean initial values."""
+        state = GameState()
+        assert state.started is False
+        assert state.paused is False
+        assert state.time == 0
 
-def test_pause_toggle_logic():
-    """Тест: чи коректно працює логіка паузи"""
-    state = GameState()
+    def test_pause_toggle_logic(self):
+        """Checking the pause switching logic."""
+        state = GameState()
+        state.paused = True
+        assert state.paused is True
+        state.paused = False
+        assert state.paused is False
 
-    # Імітуємо натискання пробілу
-    state.paused = not state.paused
-    assert state.paused is True
-
-    state.paused = not state.paused
-    assert state.paused is False
+    def test_update_logic(self):
+        """Checking update time and speed."""
+        state = GameState(base=240)
+        state.update(1.0) # 1 second has passed
+        assert state.time == 1.0
+        assert state.speed > 240
