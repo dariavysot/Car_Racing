@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 import pygame as pg
 from core.game_object import GameObject
 from managers.theme_manager import ThemeManager
+from managers.asset_manager import AssetManager
 from entities.road import Road
 from entities.player import PlayerCar
 from config import Settings as C
@@ -197,3 +198,46 @@ class TestPlayer:
         player.draw(screen)
         player.draw_only_light(screen, is_night=True)
 
+@pytest.mark.managers
+class TestAssetManager:
+    """Tests for the resource loading and fallback system."""
+
+    def test_load_sprite_with_fallback(self):
+        """Check that the loader calls a fallback if the file does not exist."""
+
+        with patch('os.path.exists', return_value=False):
+            # Create a simple fallback that returns a red square
+            fallback = lambda: pg.Surface((10, 10))
+            sprite = AssetManager.load_sprite("fake_path.png", fallback)
+
+            assert sprite.get_width() == 10
+            assert isinstance(sprite, pg.Surface)
+
+    def test_all_fallbacks_generation(self):
+        """Direct call to stub generation methods (for 100% Coverage)."""
+        # Check machine fallback
+        car = AssetManager.make_car_fallback("blue")
+        assert car.get_width() == C.CAR_WIDTH
+
+        # Check road fallback
+        road = AssetManager.make_road_fallback()
+        assert road.get_width() == C.WIDTH
+
+        # Check explosion fallback
+        expl = AssetManager.make_explosion_fallback()
+        assert expl.get_width() == 100 # radius 50 * 2
+
+    def test_load_methods_with_missing_files(self):
+        """Emulate the complete absence of assets for all types of objects."""
+        with patch('os.path.exists', return_value=False):
+            # Test loading a road without a file
+            road = AssetManager.load_road()
+            assert road.get_height() == C.HEIGHT
+
+            # Test loading a taxi without a file
+            taxi = AssetManager.load_taxi()
+            assert taxi.get_width() == C.CAR_WIDTH
+
+            # Test a truck
+            truck = AssetManager.load_truck(1)
+            assert truck.get_height() == C.TRUCK_HEIGHT
