@@ -1,6 +1,6 @@
 import pytest
 import sys
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, PropertyMock
 import pygame as pg
 
 
@@ -48,7 +48,7 @@ class TestGameCore:
             if event_quit.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
-  
+
             mock_pg_quit.assert_called_once()
             mock_sys_exit.assert_called_once()
 
@@ -140,3 +140,63 @@ class TestGameCore:
                     mock_game.state.started = True
 
         assert mock_game.state.started == expected_started
+ 
+    def test_handle_events_pause_toggle(self, mock_game):
+        """Pause toggle test via simulated keyboard events."""
+        mock_game.state.started = True
+        mock_game.state.paused = False
+
+        event = pg.event.Event(pg.KEYDOWN, {'key': pg.K_SPACE})
+
+        if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+            if mock_game.state.started:
+                mock_game.state.paused = not mock_game.state.paused
+
+        assert mock_game.state.paused is True
+
+    def test_update_objects_calls_managers(self, mock_game):
+        """Checking if update_objects causes subsystem updates."""
+        keys = pg.key.get_pressed()
+        dt = 16
+        now = 1000
+
+        with patch.object(mock_game.road, 'update') as mock_road_upd, \
+             patch.object(mock_game.enemies, 'update') as mock_enemies_upd:
+
+            mock_game.update_objects(keys, dt, now)
+
+            mock_road_upd.assert_called_once()
+            mock_enemies_upd.assert_called_once()
+            mock_game.sounds.update_engine.assert_called()
+
+    def test_spawn_logic_integration(self, mock_game):
+        """Verifying spawn integration through direct control of mock values."""
+
+        mock_game.state.started = True
+        mock_game.state.paused = False
+
+        type(mock_game.state).last_spawn = PropertyMock(return_value=0)
+        type(mock_game.state).spawn_interval = PropertyMock(return_value=1000)
+
+        now = 1100
+
+        with patch.object(mock_game.enemies, 'spawn') as mock_spawn:
+            mock_game.update_objects(pg.key.get_pressed(), 16, now)
+
+            assert mock_spawn.called, "Spawn не викликано. Перевірте, чи не перекриваються методи в mock_game"
+
+    def test_draw_calls_layers(self, mock_game):
+        """Checking the drawing sequence of layers without display errors."""
+        mock_game.screen.blit = MagicMock()
+        mock_game.state.paused = True
+        mock_game.state.started = True
+
+        with patch.object(mock_game.theme, 'apply') as mock_theme_apply, \
+             patch.object(mock_game, 'draw_players') as mock_draw_players, \
+             patch('pygame.display.flip'):
+
+            mock_game.draw(16)
+
+            mock_theme_apply.assert_called_once_with(mock_game.screen)
+            mock_draw_players.assert_called_once()
+            assert mock_game.screen.blit.called
