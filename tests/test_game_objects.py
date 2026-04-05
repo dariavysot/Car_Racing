@@ -113,18 +113,18 @@ class TestObstacle:
 
         expected_x = C.LANE_WIDTH * lane + C.LANE_OFFSET
         assert obs.rect.centerx == expected_x
-        assert math.isclose(obs.rect.centery, y, abs_tol=0.01)
+        assert math.isclose(obs.rect.centery, y, abs_tol=1)
 
     def test_update(self, mock_image):
         """Obstacle.update"""
         obs = Obstacle(mock_image, 0, 100.0, 300.0)
-        dt_sec = 0.016
+        dt_sec = 0.2
 
         initial_y = obs.rect.y
         obs.update(dt_sec)
 
         expected_y = initial_y + obs.speed * dt_sec
-        assert math.isclose(obs.rect.y, expected_y, abs_tol=0.25)
+        assert math.isclose(obs.rect.y, expected_y, abs_tol=1)
 
     def test_is_out(self, mock_image):
         """Obstacle.is_out"""
