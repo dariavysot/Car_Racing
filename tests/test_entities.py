@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 import pygame as pg
 from core.game_object import GameObject
 from managers.theme_manager import ThemeManager
+from entities.road import Road
 from config import Settings as C
 
 @pytest.mark.entities
@@ -116,3 +117,38 @@ class TestThemeManager:
 
         assert manager.is_night is False
         assert manager.timer == 0
+
+@pytest.mark.entities
+class TestRoad:
+    """Tests for the infinite scrolling road background."""
+
+    @pytest.fixture
+    def road(self):
+        """Initialize road segment for testing."""
+        img = pg.Surface((C.WIDTH, C.HEIGHT))
+        return Road(img)
+
+    def test_road_initialization(self, road):
+        """Checking the initial vertical positioning of segments."""
+        assert road.y1 == 0
+        assert road.y2 == -C.HEIGHT
+
+    def test_road_scrolling_loop(self, road):
+        """Checking the infinite loop logic when segments go off-screen."""
+        dt = 1
+        trigger_speed = C.HEIGHT + 100
+
+        road.update(dt, trigger_speed)
+        assert road.y1 < 0
+        assert road.y1 == road.y2 - C.HEIGHT
+
+        road.update(dt, trigger_speed)
+        assert road.y2 < 0
+        assert road.y2 == road.y1 - C.HEIGHT
+
+    def test_road_draw_calls(self, road):
+        """Checking if both segments are blitted to the screen."""
+        mock_screen = MagicMock(spec=pg.Surface)
+        road.draw(mock_screen)
+
+        assert mock_screen.blit.call_count == 2
