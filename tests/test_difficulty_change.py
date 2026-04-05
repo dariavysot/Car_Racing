@@ -5,6 +5,9 @@ import math
 
 from state import GameState, calculate_speed
 
+pytestmark = [
+    pytest.mark.state
+]
 
 @pytest.fixture
 def game_state():

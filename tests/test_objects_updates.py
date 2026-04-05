@@ -12,7 +12,7 @@ from state import GameState
 
 pytestmark = [
     pytest.mark.component,
-    pytest.mark.game
+    pytest.mark.logic
 ]
 
 @pytest.fixture
