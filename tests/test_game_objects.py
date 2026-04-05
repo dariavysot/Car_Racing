@@ -22,8 +22,6 @@ def mock_image():
         rect = fake_surface.get_rect()
         if 'center' in kwargs:
             rect.center = kwargs['center']
-        elif 'centerx' in kwargs and 'centery' in kwargs:
-            rect.center = (kwargs['centerx'], kwargs['centery'])
         return rect
 
     mock_surf.get_rect.side_effect = get_rect_side_effect
