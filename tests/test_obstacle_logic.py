@@ -5,6 +5,9 @@ import pygame as pg
 from managers.obstacle_manager import ObstacleManager
 from config import Settings as C
 
+pytestmark = [
+    pytest.mark.obstacles
+]
 
 @pytest.fixture(autouse=True)
 def mock_dependencies():
@@ -77,6 +80,8 @@ def mock_player_rects_two():
     return [left, right]
 
 
+@pytest.mark.component
+@pytest.mark.init
 def test_init_sets_attributes(obstacle_manager, mock_car_images, mock_truck_images):
     assert obstacle_manager.car_images == mock_car_images
     assert obstacle_manager.track_images == mock_truck_images
@@ -86,6 +91,7 @@ def test_init_sets_attributes(obstacle_manager, mock_car_images, mock_truck_imag
     assert obstacle_manager.images["TRUCK"] == mock_truck_images
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "lane, expected",
     [(0, "SAME"), (1, "OPPOSITE"), (2, "SAME"), (5, "OPPOSITE")]
@@ -94,6 +100,8 @@ def test_get_lane_type(obstacle_manager, lane, expected):
     assert obstacle_manager.get_lane_type(lane) == expected
 
 
+@pytest.mark.unit
+@pytest.mark.spawn
 @pytest.mark.parametrize(
     "left_left, left_right, right_left, right_right, expected_trapped",
     [
@@ -130,6 +138,8 @@ def test_detect_trapped_player(
         assert result is p_right
 
 
+@pytest.mark.unit
+@pytest.mark.spawn
 def test_escape_exists_returns_true_when_path_exists(obstacle_manager):
     obs = MagicMock()
     obs.lane = 2
@@ -139,6 +149,8 @@ def test_escape_exists_returns_true_when_path_exists(obstacle_manager):
     assert obstacle_manager.escape_exists(2, 0, 5, [obs]) is True
 
 
+@pytest.mark.unit
+@pytest.mark.spawn
 def test_escape_exists_returns_false_when_fully_blocked(obstacle_manager):
     obstacles = []
     for lane in range(C.LANES):
@@ -151,11 +163,15 @@ def test_escape_exists_returns_false_when_fully_blocked(obstacle_manager):
     assert obstacle_manager.escape_exists(0, 0, 5, obstacles) is False
 
 
+@pytest.mark.component
+@pytest.mark.spawn
 def test_is_spawn_safe_single_player(obstacle_manager, mock_player_rect):
     obstacle_manager.escape_exists = MagicMock(return_value=True)
     assert obstacle_manager.is_spawn_safe([MagicMock()], [mock_player_rect]) is True
 
 
+@pytest.mark.component
+@pytest.mark.spawn
 def test_is_spawn_safe_two_players_both_safe(obstacle_manager, mock_player_rects_two):
     obstacle_manager.escape_exists = MagicMock(return_value=True)
     obstacle_manager.detect_trapped_player = MagicMock(return_value=None)
@@ -164,6 +180,8 @@ def test_is_spawn_safe_two_players_both_safe(obstacle_manager, mock_player_rects
     assert obstacle_manager.escape_exists.call_count == 2
 
 
+@pytest.mark.component
+@pytest.mark.spawn
 def test_is_spawn_safe_two_players_trapped(obstacle_manager, mock_player_rects_two):
     trapped = mock_player_rects_two[0]
     obstacle_manager.detect_trapped_player = MagicMock(return_value=trapped)
@@ -172,6 +190,8 @@ def test_is_spawn_safe_two_players_trapped(obstacle_manager, mock_player_rects_t
     assert obstacle_manager.is_spawn_safe([MagicMock()], mock_player_rects_two) is True
 
 
+@pytest.mark.component
+@pytest.mark.spawn
 def test_spawn_creates_obstacles_when_safe(obstacle_manager, mock_player_rect, mock_dependencies):
     obstacle_manager.is_spawn_safe = MagicMock(return_value=True)
     obstacle_manager.get_lane_type = MagicMock(return_value="SAME")
@@ -182,6 +202,8 @@ def test_spawn_creates_obstacles_when_safe(obstacle_manager, mock_player_rect, m
     obstacle_manager.is_spawn_safe.assert_called_once()
 
 
+@pytest.mark.component
+@pytest.mark.spawn
 def test_spawn_respects_trapped_player_safe_lane(obstacle_manager, mock_player_rects_two):
     obstacle_manager.detect_trapped_player = MagicMock(return_value=mock_player_rects_two[0])
     obstacle_manager.is_spawn_safe = MagicMock(return_value=True)
@@ -191,6 +213,8 @@ def test_spawn_respects_trapped_player_safe_lane(obstacle_manager, mock_player_r
     assert len(obstacle_manager.obstacles) > 0
 
 
+@pytest.mark.component
+@pytest.mark.update
 def test_update_moves_and_cleans_obstacles(obstacle_manager):
     o1 = MagicMock()
     o1.is_out.return_value = False
@@ -208,6 +232,8 @@ def test_update_moves_and_cleans_obstacles(obstacle_manager):
     assert obstacle_manager.lane_speeds[2] == [120]
 
 
+@pytest.mark.component
+@pytest.mark.collision
 def test_check_collision_returns_obstacle_or_none(obstacle_manager, mock_dependencies):
     o1 = MagicMock()
     o2 = MagicMock()
@@ -219,6 +245,7 @@ def test_check_collision_returns_obstacle_or_none(obstacle_manager, mock_depende
     assert result is o2
 
 
+@pytest.mark.component
 def test_draw_calls_obstacle_methods(obstacle_manager, mock_dependencies):
     o1 = MagicMock()
     o2 = MagicMock()

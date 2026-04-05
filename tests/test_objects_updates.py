@@ -10,6 +10,10 @@ import pygame
 from logic import Game
 from state import GameState
 
+pytestmark = [
+    pytest.mark.component,
+    pytest.mark.game
+]
 
 @pytest.fixture
 def game():
@@ -33,6 +37,7 @@ def game():
         return game_obj
 
 
+@pytest.mark.update
 def test_update_objects_calls_all_components(game):
     keys = MagicMock()
     dt = 16
@@ -49,6 +54,7 @@ def test_update_objects_calls_all_components(game):
     game.theme.update.assert_called_once_with(dt)
 
 
+@pytest.mark.spawn
 def test_update_objects_spawns_enemy_when_interval_passed(game):
     keys = MagicMock()
     dt = 16
@@ -67,6 +73,7 @@ def test_update_objects_spawns_enemy_when_interval_passed(game):
     assert game.state.last_spawn == now
 
 
+@pytest.mark.spawn
 def test_update_objects_does_not_spawn_if_interval_not_passed(game):
     keys = MagicMock()
     dt = 16
@@ -81,6 +88,7 @@ def test_update_objects_does_not_spawn_if_interval_not_passed(game):
     assert game.state.last_spawn == 1000
 
 
+@pytest.mark.update
 def test_update_objects_dt_conversion(game):
     keys = MagicMock()
     dt = 30

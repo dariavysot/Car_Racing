@@ -6,6 +6,9 @@ import argparse
 from game_config import GameConfig
 from config import Settings as C
 
+pytestmark = [
+    pytest.mark.arguments
+]
 
 @pytest.fixture
 def mock_settings():
@@ -19,6 +22,7 @@ def mock_settings():
         yield mock_c
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "argv, expected",
     [
@@ -48,6 +52,7 @@ def test_parse_valid_arguments(argv, expected):
         assert args.car2_color == expected["car2_color"]
 
 
+@pytest.mark.unit
 def test_parse_mutually_exclusive_car_color_and_players():
     """--car-color & --players 2 are not used together."""
     with patch.object(sys, "argv", ["script.py", "--car-color", "red", "--players", "2"]), \
@@ -55,6 +60,7 @@ def test_parse_mutually_exclusive_car_color_and_players():
         GameConfig.parse()
 
 
+@pytest.mark.unit
 @pytest.mark.parametrize(
     "argv",
     [
@@ -71,6 +77,7 @@ def test_parse_car_colors_require_players_2(argv):
         GameConfig.parse()
 
 
+@pytest.mark.unit
 def test_parse_invalid_color():
     """If color is not valid then argparse should throw SystemExit."""
     with patch.object(sys, "argv", ["script.py", "--car-color", "black"]), \
@@ -78,6 +85,7 @@ def test_parse_invalid_color():
         GameConfig.parse()
 
 
+@pytest.mark.component
 def test_apply_single_player_default(mock_settings):
     """One player with color by default (red)."""
     args = MagicMock()
@@ -93,6 +101,7 @@ def test_apply_single_player_default(mock_settings):
     mock_settings.update_players_colors.assert_called_once()
 
 
+@pytest.mark.component
 def test_apply_single_player_custom_color(mock_settings):
     """One player with specified color (orange)."""
     args = MagicMock()
@@ -108,6 +117,7 @@ def test_apply_single_player_custom_color(mock_settings):
     mock_settings.update_players_colors.assert_called_once()
 
 
+@pytest.mark.component
 def test_apply_two_players_default_colors(mock_settings):
     """Two players with colors by default (red + blue)."""
     args = MagicMock()
@@ -124,6 +134,7 @@ def test_apply_two_players_default_colors(mock_settings):
     mock_settings.update_players_colors.assert_called_once()
 
 
+@pytest.mark.component
 def test_apply_two_players_custom_colors(mock_settings):
     """Two players with specified colors (green + purple)."""
     args = MagicMock()

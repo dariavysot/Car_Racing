@@ -14,17 +14,21 @@ def game_state():
     pg.quit()
 
 
+@pytest.mark.unit
 def test_calculate_speed_basic():
     assert calculate_speed(0) == 240
     assert calculate_speed(3) == pytest.approx(240 + math.log(4, 4) * 60, rel=1e-6)
     assert calculate_speed(15) == pytest.approx(240 + math.log(16, 4) * 60, rel=1e-6)
 
 
+@pytest.mark.unit
 def test_calculate_speed_with_custom_base():
     assert calculate_speed(0, base=300) == 300
     assert calculate_speed(3, base=180) == pytest.approx(180 + math.log(4, 4) * 60)
 
 
+@pytest.mark.component
+@pytest.mark.init
 def test_game_state_initial_values(game_state):
     assert game_state.time == 0
     assert game_state.speed == 240
@@ -35,6 +39,8 @@ def test_game_state_initial_values(game_state):
     assert isinstance(game_state.last_spawn, int)
 
 
+@pytest.mark.component
+@pytest.mark.reset
 def test_game_state_reset(game_state):
     game_state.time = 100
     game_state.speed = 500
@@ -49,12 +55,16 @@ def test_game_state_reset(game_state):
     assert game_state.spawn_interval == 1800
 
 
+@pytest.mark.unit
+@pytest.mark.update
 def test_game_state_update_increases_time(game_state):
     dt = 0.16
     game_state.update(dt)
     assert game_state.time == pytest.approx(dt, rel=1e-9)
 
 
+@pytest.mark.unit
+@pytest.mark.update
 def test_game_state_speed_increases_over_time(game_state):
     initial_speed = game_state.speed
 
@@ -65,6 +75,8 @@ def test_game_state_speed_increases_over_time(game_state):
     assert game_state.speed > initial_speed + 100
 
 
+@pytest.mark.unit
+@pytest.mark.update
 def test_game_state_max_enemies_clamping(game_state):
     assert game_state.max_enemies == 0.2
 
@@ -76,6 +88,9 @@ def test_game_state_max_enemies_clamping(game_state):
     assert game_state.max_enemies >= 0.34
 
 
+@pytest.mark.unit
+@pytest.mark.update
+@pytest.mark.spawn
 def test_game_state_spawn_interval_decreases(game_state):
     initial_interval = game_state.spawn_interval
 
@@ -87,6 +102,8 @@ def test_game_state_spawn_interval_decreases(game_state):
     assert game_state.spawn_interval == 1400
 
 
+@pytest.mark.unit
+@pytest.mark.spawn
 @patch('pygame.time.get_ticks')
 def test_game_state_last_spawn_is_set_on_init(mock_ticks):
     mock_ticks.return_value = 123456

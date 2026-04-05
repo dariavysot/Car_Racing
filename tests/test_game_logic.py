@@ -4,6 +4,11 @@ import pygame as pg
 import os
 from logic import Game
 
+pytestmark = [
+    pytest.mark.component,
+    pytest.mark.game
+]
+
 @pytest.fixture
 def mock_game():
     fake_surface = pg.Surface((10, 10))
@@ -35,6 +40,7 @@ def mock_game():
 
         return game
 
+@pytest.mark.reset
 def test_game_reset(mock_game):
     """Перевірка методу reset: чи повертаються параметри до початкових"""
     # Змінимо стан
@@ -48,6 +54,7 @@ def test_game_reset(mock_game):
     assert mock_game.state.started is False
     assert mock_game.state.paused is False
 
+@pytest.mark.collision
 def test_check_collisions_no_enemies(mock_game):
     """Перевірка методу колізій, коли ворогів немає"""
     # Очищуємо список ворогів через менеджер
@@ -56,6 +63,7 @@ def test_check_collisions_no_enemies(mock_game):
     # Метод має повернути None (зіткнень немає)
     assert mock_game.check_collisions() is None
 
+@pytest.mark.collision
 def test_collision_logic_trigger(mock_game):
     """Перевірка методу колізій, коли ворогів немає"""
     enemy_mock = MagicMock()
@@ -68,6 +76,7 @@ def test_collision_logic_trigger(mock_game):
     # Перевіряємо, що гра отримала об'єкт ворога (зіткнення відбулося)
     assert result == enemy_mock
 
+@pytest.mark.update
 @pytest.mark.parametrize("initial_pause_state, expected_final_state", [
     (False, True),
     (True, False)

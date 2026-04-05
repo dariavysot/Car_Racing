@@ -34,8 +34,11 @@ def mock_screen():
     return MagicMock(spec=pg.Surface)
 
 
+@pytest.mark.car
 class TestPlayerCar:
 
+    @pytest.mark.component
+    @pytest.mark.init
     def test_init(self, mock_image):
         """PlayerCar.__init__"""
         car = PlayerCar(mock_image)
@@ -47,6 +50,8 @@ class TestPlayerCar:
         assert car.right_key == pg.K_RIGHT
         assert car.direction == 0
 
+    @pytest.mark.unit
+    @pytest.mark.update
     def test_update(self, mock_image):
         """PlayerCar.update"""
         car = PlayerCar(mock_image)
@@ -75,12 +80,16 @@ class TestPlayerCar:
         car.update(keys, dt_sec)
         assert car.rect.x == C.WIDTH - car.rect.width
 
+    @pytest.mark.unit
+    @pytest.mark.draw
     def test_draw(self, mock_image, mock_screen):
         """PlayerCar.draw"""
         car = PlayerCar(mock_image)
         car.draw(mock_screen)
         mock_screen.blit.assert_called_once_with(car.image, car.rect)
 
+    @pytest.mark.unit
+    @pytest.mark.draw
     def test_draw_only_light(self, mock_image, mock_screen):
         """PlayerCar.draw_only_light"""
         car = PlayerCar(mock_image)
@@ -94,8 +103,11 @@ class TestPlayerCar:
             mocked_draw_lights.assert_called_once_with(mock_screen, False, direction="SAME")
 
 
+@pytest.mark.obstacles
 class TestObstacle:
 
+    @pytest.mark.component
+    @pytest.mark.init
     def test_init(self, mock_image):
         """Obstacle.__init__"""
         lane = 1
@@ -113,6 +125,8 @@ class TestObstacle:
         assert obs.rect.centerx == expected_x
         assert math.isclose(obs.rect.centery, y, abs_tol=1)
 
+    @pytest.mark.unit
+    @pytest.mark.update
     def test_update(self, mock_image):
         """Obstacle.update"""
         obs = Obstacle(mock_image, 0, 100.0, 300.0)
@@ -124,6 +138,7 @@ class TestObstacle:
         expected_y = initial_y + obs.speed * dt_sec
         assert math.isclose(obs.rect.y, expected_y, abs_tol=1)
 
+    @pytest.mark.unit
     def test_is_out(self, mock_image):
         """Obstacle.is_out"""
         obs = Obstacle(mock_image, 0, 0, 100)
@@ -136,6 +151,8 @@ class TestObstacle:
         obs.rect.y -= 1
         assert not obs.is_out()
 
+    @pytest.mark.unit
+    @pytest.mark.collision
     def test_collides(self, mock_image):
         """Obstacle.collides"""
         obs = Obstacle(mock_image, 0, 100, 100)
@@ -146,12 +163,16 @@ class TestObstacle:
         player_rect.move_ip(obs.rect.width + 10, 0)
         assert not obs.collides(player_rect)
 
+    @pytest.mark.unit
+    @pytest.mark.draw
     def test_draw(self, mock_image, mock_screen):
         """Obstacle.draw"""
         obs = Obstacle(mock_image, 0, 0, 100)
         obs.draw(mock_screen)
         mock_screen.blit.assert_called_once_with(obs.image, obs.rect)
 
+    @pytest.mark.unit
+    @pytest.mark.draw
     def test_draw_only_light(self, mock_image, mock_screen):
         """Obstacle.draw_only_light"""
         obs = Obstacle(mock_image, 0, 0, 100, direction="SAME")

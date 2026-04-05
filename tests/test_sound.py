@@ -6,6 +6,10 @@ import pygame as pg
 from managers.sound_manager import SoundManager
 from config import Settings as C
 
+pytestmark = [
+    pytest.mark.component,
+    pytest.mark.sound
+]
 
 @pytest.fixture(autouse=True)
 def mock_pygame_mixer():
@@ -62,6 +66,7 @@ def mock_channel():
     return MagicMock(spec=pg.mixer.Channel)
 
 
+@pytest.mark.init
 def test_init_initializes_mixer_and_loads_assets(sound_manager, mock_pygame_mixer):
     mock_pygame_mixer["sound_class"].assert_has_calls([
         call("assets/sounds/engine.wav"),
@@ -93,6 +98,7 @@ def test_reset_stops_all_and_restarts(sound_manager, mock_pygame_mixer):
         mock_start.assert_called_once()
 
 
+@pytest.mark.update
 @pytest.mark.parametrize(
     "speed, expected_volume",
     [
@@ -115,6 +121,7 @@ def test_update_engine_volume(sound_manager, mock_channel, speed, expected_volum
     assert 0.0 <= actual_volume <= 1.0, f"Volume {actual_volume} out of [0,1] range"
 
 
+@pytest.mark.update
 def test_update_engine_no_channel(sound_manager):
     sound_manager.engine_channel = None
     sound_manager.update_engine(999)
