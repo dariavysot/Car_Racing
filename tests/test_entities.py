@@ -4,6 +4,7 @@ import pygame as pg
 from core.game_object import GameObject
 from managers.theme_manager import ThemeManager
 from entities.road import Road
+from entities.player import PlayerCar
 from config import Settings as C
 
 @pytest.mark.entities
@@ -152,3 +153,47 @@ class TestRoad:
         road.draw(mock_screen)
 
         assert mock_screen.blit.call_count == 2
+
+@pytest.mark.entities
+class TestPlayer:
+    @pytest.fixture
+    def player(self):
+        img = pg.Surface((C.CAR_WIDTH, C.CAR_HEIGHT))
+        return PlayerCar(img)
+
+    def test_player_movement_left(self, player):
+        """Test: move left and update direction."""
+        keys = {pg.K_LEFT: True, pg.K_RIGHT: False}
+        initial_x = player.rect.x
+        player.update(keys, 1.0)
+
+        assert player.rect.x < initial_x
+        assert player.direction == -1
+
+    def test_player_movement_right(self, player):
+        """Test: move right and update direction."""
+        keys = {pg.K_LEFT: False, pg.K_RIGHT: True}
+        initial_x = player.rect.x
+        player.update(keys, 1.0)
+
+        assert player.rect.x > initial_x
+        assert player.direction == 1
+
+    def test_player_screen_bounds(self, player):
+        """Test: Does the car fly off the screen?"""
+        keys = {pg.K_LEFT: True, pg.K_RIGHT: False}
+
+        player.update(keys, 100.0)
+        assert player.rect.x == 0  # Stopped on the edge
+
+        # Simulate a long movement to the right
+        keys = {pg.K_LEFT: False, pg.K_RIGHT: True}
+        player.update(keys, 200.0)
+        assert player.rect.x == C.WIDTH - player.rect.width
+
+    def test_player_draw_methods(self, player):
+        """Test: Calling drawing methods (for Coverage)."""
+        screen = pg.Surface((C.WIDTH, C.HEIGHT))
+        player.draw(screen)
+        player.draw_only_light(screen, is_night=True)
+
