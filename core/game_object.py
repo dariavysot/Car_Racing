@@ -1,19 +1,20 @@
 """
 Base module for game entities.
 
-This module defines the `GameObject` class, which serves as the foundational 
-class for all renderable and movable objects in the game. It provides 
+This module defines the `GameObject` class, which serves as the foundational
+class for all renderable and movable objects in the game. It provides
 standardized methods for sprite rendering and dynamic lighting effects.
 """
 
 import pygame as pg
 from config import Settings as C
 
+
 class GameObject:
     """
     Base class for drawable game entities.
 
-    Provides a unified interface for sprite positioning, basic rendering, 
+    Provides a unified interface for sprite positioning, basic rendering,
     and advanced light-mask generation for night mode.
 
     Attributes
@@ -59,7 +60,7 @@ class GameObject:
         """
         Coordinate the rendering of both front and rear lighting.
 
-        This method acts as a high-level controller for the object's emissive 
+        This method acts as a high-level controller for the object's emissive
         effects during night mode.
 
         Parameters
@@ -69,7 +70,7 @@ class GameObject:
         is_night : bool
             Activation flag. If False, rendering is skipped.
         direction : str, optional
-            The travel direction ("SAME" or "OPPOSITE") used to orient 
+            The travel direction ("SAME" or "OPPOSITE") used to orient
             the light cones. Defaults to "SAME".
         """
         if not is_night:
@@ -82,7 +83,7 @@ class GameObject:
         """
         Render the gradient headlight cones.
 
-        Generates a semi-transparent trapezoidal surface with a quadratic 
+        Generates a semi-transparent trapezoidal surface with a quadratic
         alpha fade to simulate realistic light dispersion.
 
         Parameters
@@ -90,7 +91,7 @@ class GameObject:
         screen : pg.Surface
             The surface where headlights will be blitted.
         direction : str
-            Determines whether lights point up or down and their 
+            Determines whether lights point up or down and their
             relative offset from the vehicle's body.
         """
         top_width = int(self.rect.width * C.LIGHT_TOP_WIDTH_FACTOR)
@@ -106,10 +107,10 @@ class GameObject:
             current_width = top_width + (bottom_width - top_width) * progress
 
             pg.draw.line(
-                light_surf, 
-                (*C.LIGHT_COLOR, alpha), 
-                (int(center_x - current_width/2), C.LIGHT_HEIGHT - y), 
-                (int(center_x + current_width/2), C.LIGHT_HEIGHT - y)
+                light_surf,
+                (*C.LIGHT_COLOR, alpha),
+                (int(center_x - current_width / 2), C.LIGHT_HEIGHT - y),
+                (int(center_x + current_width / 2), C.LIGHT_HEIGHT - y)
             )
 
         pos_x = self.rect.centerx - bottom_width // 2
@@ -128,7 +129,7 @@ class GameObject:
         """
         Render the rear emissive red lights and their associated glow.
 
-        Draws fixed-position circles and applies an additive bloom effect 
+        Draws fixed-position circles and applies an additive bloom effect
         using a separate alpha surface.
 
         Parameters
@@ -136,7 +137,7 @@ class GameObject:
         screen : pg.Surface
             The surface where taillights will be blitted.
         direction : str
-            Determines the vertical positioning of the lights (top/bottom 
+            Determines the vertical positioning of the lights (top/bottom
             of the rect) to match the car's orientation.
         """
         back_y = self.rect.top + 3 if direction == "OPPOSITE" else self.rect.bottom - 3
@@ -149,8 +150,10 @@ class GameObject:
 
             pg.draw.circle(screen, C.TAIL_LIGHT_COLOR, pos, dot_radius)
 
-            glow_surf = pg.Surface((glow_radius * 2, glow_radius * 2), pg.SRCALPHA)
-            pg.draw.circle(glow_surf, (200, 0, 0, 30), (glow_radius, glow_radius), glow_radius)
+            glow_surf = pg.Surface(
+                (glow_radius * 2, glow_radius * 2), pg.SRCALPHA)
+            pg.draw.circle(glow_surf, (200, 0, 0, 30),
+                           (glow_radius, glow_radius), glow_radius)
             screen.blit(glow_surf,
                         (pos[0] - glow_radius, pos[1] - glow_radius),
                         special_flags=pg.BLEND_RGB_ADD)

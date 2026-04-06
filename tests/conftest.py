@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 import pygame as pg
 from logic import Game
 
+
 @pytest.fixture
 def mock_game():
     """Глобальна фікстура для ініціалізації гри в headless режимі."""
@@ -15,15 +16,15 @@ def mock_game():
 
     # Мокаємо все залізо (відео, звук, файли)
     with patch('pygame.display.set_mode'), \
-         patch('pygame.display.set_caption'), \
-         patch('pygame.display.set_icon'), \
-         patch('pygame.image.load', return_value=mock_surface_obj), \
-         patch('pygame.font.SysFont'), \
-         patch('pygame.transform.smoothscale', return_value=fake_surface), \
-         patch('os.path.exists', return_value=True), \
-         patch('pygame.mixer.init'), \
-         patch('pygame.mixer.stop'), \
-         patch('logic.SoundManager') as mock_sound_class:
+            patch('pygame.display.set_caption'), \
+            patch('pygame.display.set_icon'), \
+            patch('pygame.image.load', return_value=mock_surface_obj), \
+            patch('pygame.font.SysFont'), \
+            patch('pygame.transform.smoothscale', return_value=fake_surface), \
+            patch('os.path.exists', return_value=True), \
+            patch('pygame.mixer.init'), \
+            patch('pygame.mixer.stop'), \
+            patch('logic.SoundManager') as mock_sound_class:
 
         mock_sound_instance = mock_sound_class.return_value
         pg.font.init()

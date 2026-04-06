@@ -8,6 +8,7 @@ from entities.road import Road
 from entities.player import PlayerCar
 from config import Settings as C
 
+
 @pytest.mark.entities
 class TestGameObject:
     """Tests for the base game object."""
@@ -15,7 +16,7 @@ class TestGameObject:
     @pytest.fixture
     def base_obj(self):
         """We use a real surface to check the correct geometry of Rect."""
-        img = pg.Surface((40, 80)) 
+        img = pg.Surface((40, 80))
         return GameObject(img, 100, 200)
 
     def test_object_initialization(self, base_obj):
@@ -42,9 +43,12 @@ class TestGameObject:
         """Checking that headlight drawing methods are called at night."""
         mock_screen = MagicMock(spec=pg.Surface)
         with patch.object(base_obj, '_draw_headlights') as mock_head, \
-             patch.object(base_obj, '_draw_taillights') as mock_tail:
+                patch.object(base_obj, '_draw_taillights') as mock_tail:
 
-            base_obj.draw_lights(mock_screen, is_night=True, direction=direction)
+            base_obj.draw_lights(
+                mock_screen,
+                is_night=True,
+                direction=direction)
 
             mock_head.assert_called_once_with(mock_screen, direction)
             mock_tail.assert_called_once_with(mock_screen, direction)
@@ -63,6 +67,7 @@ class TestGameObject:
         """Technical test for coverage of empty update method."""
 
         assert base_obj.update() is None
+
 
 @pytest.mark.theme
 class TestThemeManager:
@@ -120,6 +125,7 @@ class TestThemeManager:
         assert manager.is_night is False
         assert manager.timer == 0
 
+
 @pytest.mark.entities
 class TestRoad:
     """Tests for the infinite scrolling road background."""
@@ -154,6 +160,7 @@ class TestRoad:
         road.draw(mock_screen)
 
         assert mock_screen.blit.call_count == 2
+
 
 @pytest.mark.entities
 class TestPlayer:
@@ -198,6 +205,7 @@ class TestPlayer:
         player.draw(screen)
         player.draw_only_light(screen, is_night=True)
 
+
 @pytest.mark.managers
 class TestAssetManager:
     """Tests for the resource loading and fallback system."""
@@ -207,7 +215,7 @@ class TestAssetManager:
 
         with patch('os.path.exists', return_value=False):
             # Create a simple fallback that returns a red square
-            fallback = lambda: pg.Surface((10, 10))
+            def fallback(): return pg.Surface((10, 10))
             sprite = AssetManager.load_sprite("fake_path.png", fallback)
 
             assert sprite.get_width() == 10
@@ -225,7 +233,7 @@ class TestAssetManager:
 
         # Check explosion fallback
         expl = AssetManager.make_explosion_fallback()
-        assert expl.get_width() == 100 # radius 50 * 2
+        assert expl.get_width() == 100  # radius 50 * 2
 
     def test_load_methods_with_missing_files(self):
         """Emulate the complete absence of assets for all types of objects."""

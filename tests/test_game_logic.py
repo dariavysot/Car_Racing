@@ -43,7 +43,7 @@ class TestGameCore:
         event_quit = pg.event.Event(pg.QUIT)
 
         with patch('pygame.quit') as mock_pg_quit, \
-             patch('sys.exit') as mock_sys_exit:
+                patch('sys.exit') as mock_sys_exit:
 
             if event_quit.type == pg.QUIT:
                 pg.quit()
@@ -66,7 +66,7 @@ class TestGameCore:
         """Testing the account rendering logic (DRAW block)."""
 
         mock_game.screen.blit = MagicMock()
-        mock_game.state.time = 15.5 
+        mock_game.state.time = 15.5
 
         mock_game.draw_score(16)
 
@@ -106,8 +106,8 @@ class TestGameCore:
         mock_enemy.rect = pg.Rect(100, 100, 50, 50)
 
         with patch.object(mock_game, 'show_explosion'), \
-             patch.object(mock_game, 'show_game_over'), \
-             patch.object(mock_game, 'wait_for_restart'):
+                patch.object(mock_game, 'show_game_over'), \
+                patch.object(mock_game, 'wait_for_restart'):
 
             mock_game.handle_crash(mock_enemy)
 
@@ -118,7 +118,8 @@ class TestGameCore:
         """Checking whether the check_collisions method is triggered when there is a collision."""
 
         mock_crash_obj = MagicMock()
-        mock_game.enemies.check_collision = MagicMock(return_value=mock_crash_obj)
+        mock_game.enemies.check_collision = MagicMock(
+            return_value=mock_crash_obj)
 
         result = mock_game.check_collisions()
 
@@ -126,10 +127,15 @@ class TestGameCore:
         mock_game.enemies.check_collision.assert_called()
 
     @pytest.mark.parametrize("press_space, started_init, expected_started", [
-        (True, False, True), # Pressed Space at start -> Game started
-        (False, False, False), # Didn't press -> Didn't start
+        (True, False, True),  # Pressed Space at start -> Game started
+        (False, False, False),  # Didn't press -> Didn't start
     ])
-    def test_start_input_logic(self, mock_game, press_space, started_init, expected_started):
+    def test_start_input_logic(
+            self,
+            mock_game,
+            press_space,
+            started_init,
+            expected_started):
         """Testing game login logic through event simulation."""
         mock_game.state.started = started_init
 
@@ -140,7 +146,7 @@ class TestGameCore:
                     mock_game.state.started = True
 
         assert mock_game.state.started == expected_started
- 
+
     def test_handle_events_pause_toggle(self, mock_game):
         """Pause toggle test via simulated keyboard events."""
         mock_game.state.started = True
@@ -161,7 +167,7 @@ class TestGameCore:
         now = 1000
 
         with patch.object(mock_game.road, 'update') as mock_road_upd, \
-             patch.object(mock_game.enemies, 'update') as mock_enemies_upd:
+                patch.object(mock_game.enemies, 'update') as mock_enemies_upd:
 
             mock_game.update_objects(keys, dt, now)
 
@@ -192,8 +198,8 @@ class TestGameCore:
         mock_game.state.started = True
 
         with patch.object(mock_game.theme, 'apply') as mock_theme_apply, \
-             patch.object(mock_game, 'draw_players') as mock_draw_players, \
-             patch('pygame.display.flip'):
+                patch.object(mock_game, 'draw_players') as mock_draw_players, \
+                patch('pygame.display.flip'):
 
             mock_game.draw(16)
 

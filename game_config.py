@@ -1,19 +1,20 @@
 """
 Command-line configuration module.
 
-This module provides the `GameConfig` class to parse terminal arguments 
-and apply them to the global game settings, allowing customization of 
+This module provides the `GameConfig` class to parse terminal arguments
+and apply them to the global game settings, allowing customization of
 player colors and game modes.
 """
 import sys
 import argparse
 from config import Settings as C
 
+
 class GameConfig:
     """
     Utility class for handling game initialization parameters.
 
-    Parses command-line interface (CLI) arguments and synchronizes them 
+    Parses command-line interface (CLI) arguments and synchronizes them
     with the `Settings` class before the game engine starts.
     """
 
@@ -21,7 +22,7 @@ class GameConfig:
     def parse():
         """
         Define and parse available command-line arguments.
-        
+
         Ensures logical consistency:
         - --car-color and --players 2 are mutually exclusive.
         - --car1-color and --car2-color require --players 2.
@@ -62,7 +63,8 @@ class GameConfig:
 
         if args.players != 2:
             if "--car1-color" in sys.argv or "--car2-color" in sys.argv:
-                parser.error("--car1-color and --car2-color require --players 2")
+                parser.error(
+                    "--car1-color and --car2-color require --players 2")
 
         return args
 

@@ -1,7 +1,7 @@
 """
 Resource management and asset loading system.
 
-Provides a robust interface for loading graphical assets with automatic 
+Provides a robust interface for loading graphical assets with automatic
 procedural fallback generation in case of missing external files.
 """
 
@@ -9,11 +9,12 @@ import os
 import pygame as pg
 from config import Settings as C
 
+
 class AssetManager:
     """
     Static utility class for loading and scaling game sprites.
 
-    Contains logic for safe image loading and procedural generation of 
+    Contains logic for safe image loading and procedural generation of
     placeholders (fallbacks) for cars, roads, and effects.
     """
 
@@ -123,6 +124,6 @@ class AssetManager:
         """Load the explosion animation sprite."""
         path = "assets/images/explosion.png"
         return AssetManager.load_sprite(
-            path, 
+            path,
             AssetManager.make_explosion_fallback
         )

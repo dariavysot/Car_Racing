@@ -7,17 +7,11 @@ avoiding obstacles and competing for survival.
 """
 
 import pygame as pg
-import sys
 
 from logic import Game
 from config import Settings as C
-from state import GameState
-from managers.obstacle_manager import ObstacleManager
-from entities.road import Road
 from entities.player import PlayerCar
 from managers.asset_manager import AssetManager
-from managers.theme_manager import ThemeManager
-from managers.sound_manager import SoundManager
 
 
 class TwoPlayersGame(Game):
@@ -136,7 +130,7 @@ class TwoPlayersGame(Game):
             else:
                 self.handle_result(True, True)
             return None
-        
+
         crash1 = self.enemies.check_collision(self.player1.rect)
         crash2 = self.enemies.check_collision(self.player2.rect)
 
@@ -232,12 +226,12 @@ class TwoPlayersGame(Game):
 
     def show_game_over(self, result_text):
         """ Display the final results and restart instructions on the screen.
-        
+
         Parameters
         ----------
         result_text : str
             The message indicating who won or if it was a draw.
-        
+
         Returns
         -------
         None
@@ -250,7 +244,8 @@ class TwoPlayersGame(Game):
         result = self.font_big.render(result_text, True, C.YELLOW)
         self.screen.blit(result, result.get_rect(center=(cx, cy)))
 
-        press = self.font_small.render("Press any key to restart", True, C.WHITE)
+        press = self.font_small.render(
+            "Press any key to restart", True, C.WHITE)
         self.screen.blit(press, press.get_rect(center=(cx, cy + 80)))
-        
+
         pg.display.flip()

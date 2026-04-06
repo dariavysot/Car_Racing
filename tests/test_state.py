@@ -1,6 +1,7 @@
 import pytest
 from state import GameState
 
+
 @pytest.mark.state
 class TestGameState:
     def test_game_state_initialization(self):
@@ -21,6 +22,6 @@ class TestGameState:
     def test_update_logic(self):
         """Checking update time and speed."""
         state = GameState(base=240)
-        state.update(1.0) # 1 second has passed
+        state.update(1.0)  # 1 second has passed
         assert state.time == 1.0
         assert state.speed > 240

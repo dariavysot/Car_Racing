@@ -1,6 +1,7 @@
 import pygame as pg
 from config import Settings as C
 
+
 class SoundManager:
     """
     Controller for game audio, including background music and sound effects.

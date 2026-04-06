@@ -1,6 +1,7 @@
 import math
 import pygame as pg
 
+
 def calculate_speed(time, base=240):
     """
     Calculate the game speed based on elapsed time using logarithmic scaling.
@@ -22,11 +23,12 @@ def calculate_speed(time, base=240):
     """
     return base + math.log(time + 1, 4) * 60
 
+
 class GameState:
     """
     A class to manage the global state and difficulty scaling of the game.
 
-    This class tracks time, movement speed, enemy density, and spawning 
+    This class tracks time, movement speed, enemy density, and spawning
     logic. It scales difficulty dynamically as the game progresses.
 
     Attributes

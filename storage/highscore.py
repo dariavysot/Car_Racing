@@ -8,6 +8,7 @@ that achievements are preserved across game restarts.
 
 import os
 
+
 class HighScore:
     """
     Manage persistent storage of the player's highest score.
@@ -28,6 +29,7 @@ class HighScore:
     value : int
         The current highest score loaded into memory.
     """
+
     def __init__(self, filepath="storage/highscore.txt"):
         """
         Initialize the HighScore manager.

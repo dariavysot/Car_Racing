@@ -35,7 +35,7 @@ class TestHighScoreSystem:
             assert f.read() == "100"
 
     def test_highscore_ignore_lower_score(self, temp_highscore_file):
-        """Verification that lower scores are ignored to preserve the record."""
+        """Verification that lower scores are ignored to preserve the record"""
         hs = HighScore(filepath=temp_highscore_file)
         hs.save_if_better(100)  # Establish baseline
 

@@ -1,7 +1,7 @@
 """
 Player car entity module.
 
-Defines the `PlayerCar` class, which handles user-controlled vehicle 
+Defines the `PlayerCar` class, which handles user-controlled vehicle
 movement, input processing, and screen boundary constraints.
 """
 
@@ -9,11 +9,12 @@ import pygame as pg
 from config import Settings as C
 from core.game_object import GameObject
 
+
 class PlayerCar(GameObject):
     """
     Represents the user-controlled racing car.
 
-    Inherits from `GameObject` and implements horizontal movement 
+    Inherits from `GameObject` and implements horizontal movement
     logic based on configurable keyboard input.
 
     Attributes

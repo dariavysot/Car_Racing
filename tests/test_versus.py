@@ -6,15 +6,19 @@ from gameplay.two_players import TwoPlayersGame
 
 @pytest.mark.physics
 class TestVersusGame:
-    """Tests for the dual-player competitive mode and inter-player interactions."""
+    """Tests for the dual-player competitive mode
+    and inter-player interactions."""
 
     @pytest.fixture
     def mock_versus_game(self):
-        """Fixture providing a two-player game instance with mocked dependencies."""
+        """Fixture providing a two-player game instance
+        with mocked dependencies."""
         fake_surface = pg.Surface((10, 10))
         mock_surface_obj = MagicMock(spec=pg.Surface)
-        mock_surface_obj.convert_alpha.return_value = fake_surface
-        mock_surface_obj.get_rect.return_value = fake_surface.get_rect()
+        mock_surface_obj.convert_alpha.return_value = \
+            fake_surface
+        mock_surface_obj.get_rect.return_value = \
+            fake_surface.get_rect()
 
         with patch('pygame.display.set_mode'), \
                 patch('pygame.image.load', return_value=mock_surface_obj), \
@@ -46,8 +50,10 @@ class TestVersusGame:
         (0, -1, (False, True)),
         (0, 0, (True, True))
     ])
-    def test_collision_result_scenarios(self, mock_versus_game, p1_dir, p2_dir, expected_crash):
-        """Parameterized verification of winner/loser determination based on movement state."""
+    def test_collision_result_scenarios(
+            self, mock_versus_game, p1_dir, p2_dir, expected_crash):
+        """Parameterized verification of winner/loser
+        determination based on movement state."""
         mock_versus_game.player1.rect = pg.Rect(100, 100, 40, 70)
         mock_versus_game.player2.rect = pg.Rect(100, 100, 40, 70)
 
@@ -55,4 +61,6 @@ class TestVersusGame:
         mock_versus_game.player2.direction = p2_dir
 
         mock_versus_game.check_collisions()
-        mock_versus_game.handle_result.assert_called_with(*expected_crash)
+        mock_versus_game.handle_result.assert_called_with(
+            *expected_crash
+        )

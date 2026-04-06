@@ -1,7 +1,7 @@
 """
 Environmental theme and lighting management.
 
-This module defines the `ThemeManager` class, which handles periodic 
+This module defines the `ThemeManager` class, which handles periodic
 transitions between day and night modes using full-screen alpha overlays.
 """
 
@@ -13,8 +13,8 @@ class ThemeManager:
     """
     Controller for environmental lighting cycles.
 
-    Manages a timer-based system that toggles the game's visual state 
-    between daylight and night mode, providing a dark surface mask 
+    Manages a timer-based system that toggles the game's visual state
+    between daylight and night mode, providing a dark surface mask
     for light-source pass rendering.
 
     Attributes
@@ -33,7 +33,7 @@ class ThemeManager:
         """
         Initialize the ThemeManager.
 
-        Sets up the timing intervals and pre-renders the darkness overlay 
+        Sets up the timing intervals and pre-renders the darkness overlay
         surface with the transparency levels defined in the configuration.
         """
         self.is_night = False
@@ -48,7 +48,7 @@ class ThemeManager:
         """
         Reset the manager to default daylight state.
 
-        Should be called whenever a new game session starts to ensure 
+        Should be called whenever a new game session starts to ensure
         consistency in the initial lighting.
         """
         self.is_night = False

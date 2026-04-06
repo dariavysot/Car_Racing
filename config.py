@@ -7,6 +7,7 @@ dimensions, colors, and lighting parameters used across the application.
 
 from state import calculate_speed
 
+
 class Settings:
     """
     Static container for game-wide constants.
