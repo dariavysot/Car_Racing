@@ -9,7 +9,6 @@ import os
 import pygame as pg
 from config import Settings as C
 
-
 class AssetManager:
     """
     Static utility class for loading and scaling game sprites.
@@ -89,8 +88,7 @@ class AssetManager:
         path = f"assets/images/{color_name}_car.png"
 
         img = AssetManager.load_sprite(
-            path,
-            lambda: AssetManager.make_car_fallback(color_name)
+            path, lambda: AssetManager.make_car_fallback(color_name)
         )
 
         return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.CAR_HEIGHT))
@@ -98,11 +96,10 @@ class AssetManager:
     @staticmethod
     def load_taxi():
         """Load and scale the taxi obstacle sprite."""
-        path = f"assets/images/taxi.png"
+        path = "assets/images/taxi.png"
 
         img = AssetManager.load_sprite(
-            path,
-            lambda: AssetManager.make_car_fallback("yellow")
+            path, lambda: AssetManager.make_car_fallback("yellow")
         )
 
         return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.CAR_HEIGHT))
@@ -113,8 +110,7 @@ class AssetManager:
         path = f"assets/images/truck_{num}.png"
 
         img = AssetManager.load_sprite(
-            path,
-            lambda: AssetManager.make_car_fallback("green")
+            path, lambda: AssetManager.make_car_fallback("green")
         )
 
         return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.TRUCK_HEIGHT))

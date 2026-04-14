@@ -5,8 +5,10 @@ This module provides the `GameConfig` class to parse terminal arguments
 and apply them to the global game settings, allowing customization of
 player colors and game modes.
 """
-import sys
+
 import argparse
+import sys
+
 from config import Settings as C
 
 
@@ -37,26 +39,23 @@ class GameConfig:
         group.add_argument(
             "--car-color",
             choices=color_choices,
-            help="Player car color (single-player mode only)"
+            help="Player car color (single-player mode only)",
         )
 
         group.add_argument(
-            "--players",
-            type=int,
-            choices=[1, 2],
-            help="Set to 2 for competitive mode"
+            "--players", type=int, choices=[1, 2], help="Set to 2 for competitive mode"
         )
 
         parser.add_argument(
             "--car1-color",
             choices=color_choices,
-            help="First player car color (two-player mode)"
+            help="First player car color (two-player mode)",
         )
 
         parser.add_argument(
             "--car2-color",
             choices=color_choices,
-            help="Second player car color (two-player mode)"
+            help="Second player car color (two-player mode)",
         )
 
         args = parser.parse_args()

@@ -6,6 +6,7 @@ movement, input processing, and screen boundary constraints.
 """
 
 import pygame as pg
+
 from config import Settings as C
 from core.game_object import GameObject
 

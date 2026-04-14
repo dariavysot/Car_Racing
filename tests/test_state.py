@@ -1,9 +1,12 @@
 import pytest
+
 from state import GameState
 
 
+@pytest.mark.component
 @pytest.mark.state
 class TestGameState:
+    @pytest.mark.init
     def test_game_state_initialization(self):
         """Checking for clean initial values."""
         state = GameState()

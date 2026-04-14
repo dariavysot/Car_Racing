@@ -6,6 +6,7 @@ transitions between day and night modes using full-screen alpha overlays.
 """
 
 import pygame as pg
+
 from config import Settings as C
 
 

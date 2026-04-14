@@ -1,6 +1,7 @@
-import pygame as pg
-from core.game_object import GameObject
+
 from config import Settings as C
+from core.game_object import GameObject
+
 
 
 class Obstacle(GameObject):

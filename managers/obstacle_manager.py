@@ -1,14 +1,17 @@
 import random
+
 import pygame as pg
+
 from config import Settings as C
-from gameplay.collision import check_rect_collision
 from entities.obstacle import Obstacle
+from gameplay.collision import check_rect_collision
 
 
 class TrafficType:
     """
     Constants for traffic direction types.
     """
+
     SAME = "SAME"
     OPPOSITE = "OPPOSITE"
 
@@ -46,7 +49,7 @@ class ObstacleManager:
         self.images["TRUCK"] = self.track_images
         self.speed_groups = {
             TrafficType.SAME: (0.5, 0.75),  # 50–75 %
-            TrafficType.OPPOSITE: (1.25, 1.5)  # 125–150 %
+            TrafficType.OPPOSITE: (1.25, 1.5),  # 125–150 %
         }
 
     def get_lane_type(self, lane):
@@ -231,7 +234,8 @@ class ObstacleManager:
                 lane,
                 0 if trapped is p_left else mid,
                 mid - 1 if trapped is p_left else C.LANES - 1,
-                sim_obstacles)
+                sim_obstacles,
+            )
 
         left_safe = self.escape_exists(left_lane, 0, mid - 1, sim_obstacles)
         right_safe = self.escape_exists(
@@ -257,10 +261,13 @@ class ObstacleManager:
         trapped = None
         if len(player_rects) == 2:
             trapped = self.detect_trapped_player(player_rects)
-            mid = C.LANES // 2
+            C.LANES // 2
             if trapped is not None:
-                safe_lane = 0 if trapped == sorted(
-                    player_rects, key=lambda r: r.centerx)[0] else C.LANES - 1
+                safe_lane = (
+                    0
+                    if trapped == sorted(player_rects, key=lambda r: r.centerx)[0]
+                    else C.LANES - 1
+                )
 
         attempts = 0
         while attempts < 25:
@@ -284,11 +291,13 @@ class ObstacleManager:
                 if lane_type == TrafficType.OPPOSITE:
                     image = pg.transform.flip(image, False, True)
                 obstacle = Obstacle(
-                    image, lane, -C.HEIGHT / 2, speed, direction=lane_type)
+                    image, lane, -C.HEIGHT / 2, speed, direction=lane_type
+                )
                 candidates.append(obstacle)
 
             immediate_safe = not any(
-                c.lane == o.lane and abs(c.rect.y - o.rect.y) < C.CAR_HEIGHT * 1.5
+                c.lane == o.lane and abs(
+                    c.rect.y - o.rect.y) < C.CAR_HEIGHT * 1.5
                 for c in candidates
                 for o in self.obstacles
             )
@@ -312,10 +321,7 @@ class ObstacleManager:
         """
         for o in self.obstacles:
             o.update(dt_sec)
-        self.obstacles = [
-            o for o in self.obstacles
-            if not o.is_out()
-        ]
+        self.obstacles = [o for o in self.obstacles if not o.is_out()]
         self.lane_speeds = [[] for _ in range(C.LANES)]
         for o in self.obstacles:
             self.lane_speeds[o.lane].append(o.speed)

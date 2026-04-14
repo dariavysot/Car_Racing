@@ -1,4 +1,5 @@
 import pygame as pg
+
 from config import Settings as C
 
 
@@ -60,7 +61,7 @@ class SoundManager:
             Current speed of the game.
         """
         if self.engine_channel:
-            volume = min(speed / C.MAX_SPEED_RATING, 1)
+            volume = max(0.0, min(speed / C.MAX_SPEED_RATING, 1.0))
             self.engine_channel.set_volume(volume)
 
     def pause(self):

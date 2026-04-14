@@ -6,17 +6,18 @@ resource management, state transitions, and the primary execution loop.
 """
 
 import sys
+
 import pygame as pg
-from storage.highscore import HighScore
 
 from config import Settings as C
-from state import GameState
+from entities.player import PlayerCar
+from entities.road import Road
 from managers.asset_manager import AssetManager
 from managers.obstacle_manager import ObstacleManager
-from managers.theme_manager import ThemeManager
 from managers.sound_manager import SoundManager
-from entities.road import Road
-from entities.player import PlayerCar
+from managers.theme_manager import ThemeManager
+from state import GameState
+from storage.highscore import HighScore
 
 
 class Game:
@@ -89,15 +90,15 @@ class Game:
         -----
         - Player car is scaled to (C.CAR_WIDTH, C.CAR_HEIGHT).
         - NPC car sprites are stored in `self.car_images`.
-        - Trucks are stored in `self.truck_images`
-        and scaled to `C.TRUCK_HEIGHT`.
+        - Trucks are stored in `self.truck_images` and scaled to `C.TRUCK_HEIGHT`.
         """
         am = AssetManager
         self.road_img = am.load_road()
         self.player_img = am.load_car(C.PLAYER_COLOR)
         self.explosion_img = am.load_explosion()
         self.player_img = pg.transform.smoothscale(
-            self.player_img, (C.CAR_WIDTH, C.CAR_HEIGHT))
+            self.player_img, (C.CAR_WIDTH, C.CAR_HEIGHT)
+        )
 
         self.car_images = []
         self.truck_images = []
@@ -194,9 +195,7 @@ class Game:
 
         if now - self.state.last_spawn >= self.state.spawn_interval:
             self.enemies.spawn(
-                self.state.max_enemies,
-                self.get_player_rects(),
-                self.state.speed
+                self.state.max_enemies, self.get_player_rects(), self.state.speed
             )
             self.state.last_spawn = now
 
@@ -296,10 +295,9 @@ class Game:
         """
         Coordinate the sequence of events triggered by a player collision.
 
-        This method manages the transition from active gameplay
-        to the post-game state. It executes the visual crash effect, finalizes
-        the session score, persists high score data, and enters the game-over
-        interface loop.
+        This method manages the transition from active gameplay to the post-game
+        state. It executes the visual crash effect, finalizes the session score,
+        persists high score data, and enters the game-over interface loop.
 
         Parameters
         ----------
@@ -343,7 +341,7 @@ class Game:
         """
         mid = (
             (self.player.rect.centerx + enemy.rect.centerx) // 2,
-            (self.player.rect.centery + enemy.rect.centery) // 2
+            (self.player.rect.centery + enemy.rect.centery) // 2,
         )
 
         self.road.draw(self.screen)
@@ -388,21 +386,15 @@ class Game:
         game_over = self.font_big.render("GAME OVER", True, C.WHITE)
         self.screen.blit(game_over, game_over.get_rect(center=(cx, cy - 100)))
 
-        if getattr(self, 'is_new_record', False):
+        if getattr(self, "is_new_record", False):
             record_text = self.font_big.render(
                 "NEW RECORD!", True, (255, 215, 0))
             self.screen.blit(
-                record_text,
-                record_text.get_rect(
-                    center=(
-                        cx,
-                        cy)))
+                record_text, record_text.get_rect(center=(cx, cy)))
 
         hs_text = self.font_small.render(
-            f"High Score: {
-                self.highscore.value}",
-            True,
-            C.YELLOW)
+            f"High Score: {self.highscore.value}", True, C.YELLOW
+        )
         self.screen.blit(hs_text, hs_text.get_rect(center=(cx, cy + 60)))
 
         press = self.font_small.render(
@@ -422,8 +414,7 @@ class Game:
         -----
         - Any key (except ESC) triggers a restart.
         - ESC or window close event triggers `sys.exit()`.
-        - Internal clock is capped at 30 FPS
-        to reduce CPU overhead while waiting.
+        - Internal clock is capped at 30 FPS to reduce CPU overhead while waiting.
         """
         waiting = True
         while waiting:

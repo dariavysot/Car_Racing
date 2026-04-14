@@ -7,6 +7,7 @@ standardized methods for sprite rendering and dynamic lighting effects.
 """
 
 import pygame as pg
+
 from config import Settings as C
 
 
@@ -43,7 +44,6 @@ class GameObject:
 
     def update(self, *args, **kwargs):
         """Update object state. Intended to be overridden in subclasses."""
-        pass
 
     def draw(self, screen):
         """
@@ -110,7 +110,7 @@ class GameObject:
                 light_surf,
                 (*C.LIGHT_COLOR, alpha),
                 (int(center_x - current_width / 2), C.LIGHT_HEIGHT - y),
-                (int(center_x + current_width / 2), C.LIGHT_HEIGHT - y)
+                (int(center_x + current_width / 2), C.LIGHT_HEIGHT - y),
             )
 
         pos_x = self.rect.centerx - bottom_width // 2
@@ -152,8 +152,12 @@ class GameObject:
 
             glow_surf = pg.Surface(
                 (glow_radius * 2, glow_radius * 2), pg.SRCALPHA)
-            pg.draw.circle(glow_surf, (200, 0, 0, 30),
-                           (glow_radius, glow_radius), glow_radius)
-            screen.blit(glow_surf,
-                        (pos[0] - glow_radius, pos[1] - glow_radius),
-                        special_flags=pg.BLEND_RGB_ADD)
+            pg.draw.circle(
+                glow_surf, (200, 0, 0, 30), (glow_radius,
+                                             glow_radius), glow_radius
+            )
+            screen.blit(
+                glow_surf,
+                (pos[0] - glow_radius, pos[1] - glow_radius),
+                special_flags=pg.BLEND_RGB_ADD,
+            )

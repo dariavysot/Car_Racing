@@ -6,11 +6,12 @@ game loop where two players can race simultaneously on the same screen,
 avoiding obstacles and competing for survival.
 """
 
+
 import pygame as pg
 
-from logic import Game
 from config import Settings as C
 from entities.player import PlayerCar
+from logic import Game
 from managers.asset_manager import AssetManager
 
 
@@ -53,26 +54,16 @@ class TwoPlayersGame(Game):
         player2_img = AssetManager.load_car(C.PLAYER2_COLOR)
 
         player1_img = pg.transform.smoothscale(
-            player1_img,
-            (C.CAR_WIDTH, C.CAR_HEIGHT)
-        )
+            player1_img, (C.CAR_WIDTH, C.CAR_HEIGHT))
 
         player2_img = pg.transform.smoothscale(
-            player2_img,
-            (C.CAR_WIDTH, C.CAR_HEIGHT)
-        )
+            player2_img, (C.CAR_WIDTH, C.CAR_HEIGHT))
 
         self.player1 = PlayerCar(
-            player1_img,
-            left_key=pg.K_a,
-            right_key=pg.K_d
-        )
+            player1_img, left_key=pg.K_a, right_key=pg.K_d)
 
         self.player2 = PlayerCar(
-            player2_img,
-            left_key=pg.K_LEFT,
-            right_key=pg.K_RIGHT
-        )
+            player2_img, left_key=pg.K_LEFT, right_key=pg.K_RIGHT)
 
         self.player1.rect.centerx = C.WIDTH // 3
         self.player2.rect.centerx = C.WIDTH * 2 // 3
@@ -85,13 +76,11 @@ class TwoPlayersGame(Game):
         self.player2.update(keys, dt_sec)
 
         self.player1.rect.x = max(
-            0,
-            min(self.player1.rect.x, C.WIDTH - self.player1.rect.width)
+            0, min(self.player1.rect.x, C.WIDTH - self.player1.rect.width)
         )
 
         self.player2.rect.x = max(
-            0,
-            min(self.player2.rect.x, C.WIDTH - self.player2.rect.width)
+            0, min(self.player2.rect.x, C.WIDTH - self.player2.rect.width)
         )
 
     # ----------------------------
@@ -99,10 +88,7 @@ class TwoPlayersGame(Game):
     # ----------------------------
 
     def get_player_rects(self):
-        return [
-            self.player1.rect,
-            self.player2.rect
-        ]
+        return [self.player1.rect, self.player2.rect]
 
     def check_collisions(self):
         """
@@ -167,16 +153,12 @@ class TwoPlayersGame(Game):
 
         expl = pg.transform.smoothscale(self.explosion_img, (120, 120))
         if crash1:
-            self.screen.blit(
-                expl,
-                expl.get_rect(center=self.player1.rect.center)
-            )
+            self.screen.blit(expl, expl.get_rect(
+                center=self.player1.rect.center))
 
         if crash2:
-            self.screen.blit(
-                expl,
-                expl.get_rect(center=self.player2.rect.center)
-            )
+            self.screen.blit(expl, expl.get_rect(
+                center=self.player2.rect.center))
 
         pg.display.flip()
         pg.time.delay(700)
@@ -225,7 +207,7 @@ class TwoPlayersGame(Game):
         self.player2.draw_only_light(self.screen, self.theme.is_night)
 
     def show_game_over(self, result_text):
-        """ Display the final results and restart instructions on the screen.
+        """Display the final results and restart instructions on the screen.
 
         Parameters
         ----------
