@@ -1,8 +1,19 @@
 import sys
-from unittest.mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch, mock_open
 
 import pygame as pg
 import pytest
+
+
+@pytest.fixture(autouse=True)
+def mock_highscore_full(monkeypatch):
+    patcher_exists = patch("os.path.exists", return_value=True)
+    patcher_exists.start()
+
+    with patch("storage.highscore.open", mock_open(read_data="100")) as m:
+        yield m
+
+    patcher_exists.stop()
 
 
 @pytest.mark.logic
