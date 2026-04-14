@@ -1,6 +1,7 @@
-import pygame as pg
-from core.game_object import GameObject
+
 from config import Settings as C
+from core.game_object import GameObject
+
 
 class Obstacle(GameObject):
     """
@@ -36,7 +37,6 @@ class Obstacle(GameObject):
         self.direction = direction
         x = C.LANE_WIDTH * lane + C.LANE_OFFSET
         super().__init__(image, x, y)
-
 
     def update(self, dt_sec):
         """
@@ -91,7 +91,7 @@ class Obstacle(GameObject):
         """
         Render only the lighting effects for the obstacle.
 
-        This is used in the multi-pass rendering pipeline after the 
+        This is used in the multi-pass rendering pipeline after the
         darkness overlay is applied.
 
         Parameters

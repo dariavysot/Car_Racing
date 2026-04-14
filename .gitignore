@@ -6,7 +6,7 @@ __pycache__/
 .vscode/
 .idea/
 
-.storage/highscore.txt
+storage/highscore.txt
 
 .coverage
 htmlcov/

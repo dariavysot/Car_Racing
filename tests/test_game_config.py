@@ -1,14 +1,12 @@
-import pytest
-from unittest.mock import patch, MagicMock
 import sys
-import argparse
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from game_config import GameConfig
-from config import Settings as C
 
-pytestmark = [
-    pytest.mark.arguments
-]
+pytestmark = [pytest.mark.arguments]
+
 
 @pytest.fixture
 def mock_settings():
@@ -27,19 +25,52 @@ def mock_settings():
     "argv, expected",
     [
         # 1. Default (no arguments)
-        (["script.py"], {"car_color": None, "players": None, "car1_color": None, "car2_color": None}),
-
+        (
+            ["script.py"],
+            {
+                "car_color": None,
+                "players": None,
+                "car1_color": None,
+                "car2_color": None,
+            },
+        ),
         # 2. One player + color
-        (["script.py", "--car-color", "yellow"], {"car_color": "yellow", "players": None, "car1_color": None, "car2_color": None}),
-
+        (
+            ["script.py", "--car-color", "yellow"],
+            {
+                "car_color": "yellow",
+                "players": None,
+                "car1_color": None,
+                "car2_color": None,
+            },
+        ),
         # 3. Two players (without colors)
-        (["script.py", "--players", "2"], {"car_color": None, "players": 2, "car1_color": None, "car2_color": None}),
-
+        (
+            ["script.py", "--players", "2"],
+            {"car_color": None, "players": 2,
+                "car1_color": None, "car2_color": None},
+        ),
         # 4. Two players + colors
-        (["script.py", "--players", "2", "--car1-color", "green", "--car2-color", "purple"],
-         {"car_color": None, "players": 2, "car1_color": "green", "car2_color": "purple"}),
+        (
+            [
+                "script.py",
+                "--players",
+                "2",
+                "--car1-color",
+                "green",
+                "--car2-color",
+                "purple",
+            ],
+            {
+                "car_color": None,
+                "players": 2,
+                "car1_color": "green",
+                "car2_color": "purple",
+            },
+        ),
     ],
-    ids=["default", "single_player_color", "two_players_default", "two_players_custom"]
+    ids=["default", "single_player_color",
+         "two_players_default", "two_players_custom"],
 )
 def test_parse_valid_arguments(argv, expected):
     """parse() works correctly."""
@@ -55,8 +86,9 @@ def test_parse_valid_arguments(argv, expected):
 @pytest.mark.unit
 def test_parse_mutually_exclusive_car_color_and_players():
     """--car-color & --players 2 are not used together."""
-    with patch.object(sys, "argv", ["script.py", "--car-color", "red", "--players", "2"]), \
-         pytest.raises(SystemExit):
+    with patch.object(
+        sys, "argv", ["script.py", "--car-color", "red", "--players", "2"]
+    ), pytest.raises(SystemExit):
         GameConfig.parse()
 
 
@@ -68,20 +100,20 @@ def test_parse_mutually_exclusive_car_color_and_players():
         ["script.py", "--car2-color", "yellow"],
         ["script.py", "--car1-color", "blue", "--car2-color", "red"],
     ],
-    ids=["car1_only", "car2_only", "both_without_players"]
+    ids=["car1_only", "car2_only", "both_without_players"],
 )
 def test_parse_car_colors_require_players_2(argv):
     """--car1-color / --car2-color require --players 2, else parser.error()."""
-    with patch.object(sys, "argv", argv), \
-         pytest.raises(SystemExit):
+    with patch.object(sys, "argv", argv), pytest.raises(SystemExit):
         GameConfig.parse()
 
 
 @pytest.mark.unit
 def test_parse_invalid_color():
     """If color is not valid then argparse should throw SystemExit."""
-    with patch.object(sys, "argv", ["script.py", "--car-color", "black"]), \
-         pytest.raises(SystemExit):
+    with patch.object(
+        sys, "argv", ["script.py", "--car-color", "black"]
+    ), pytest.raises(SystemExit):
         GameConfig.parse()
 
 

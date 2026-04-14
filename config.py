@@ -7,6 +7,7 @@ dimensions, colors, and lighting parameters used across the application.
 
 from state import calculate_speed
 
+
 class Settings:
     """
     Static container for game-wide constants.
@@ -14,6 +15,7 @@ class Settings:
     Organizes parameters into logical groups: display, gameplay physics,
     lighting effects, and color palettes.
     """
+
     # --- Display & Engine ---
     WIDTH, HEIGHT = 480, 720
     FPS = 60
@@ -35,7 +37,7 @@ class Settings:
 
     # --- Environment & Theme ---
     THEME_INTERVAL = 15000  # Time in ms between Day/Night cycles
-    NIGHT_ALPHA = 130       # Global darkness overlay transparency (0-255)
+    NIGHT_ALPHA = 130  # Global darkness overlay transparency (0-255)
 
     # --- Lighting FX (Headlights) ---
     LIGHT_HEIGHT = 220

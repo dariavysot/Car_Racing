@@ -1,7 +1,8 @@
-import pytest
 import sys
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, PropertyMock, patch
+
 import pygame as pg
+import pytest
 
 
 @pytest.mark.logic
@@ -15,7 +16,7 @@ class TestGameCore:
         assert mock_game.state.started is False
         assert mock_game.state.paused is False
         assert mock_game.state.time == 0
-        assert hasattr(mock_game, 'player')
+        assert hasattr(mock_game, "player")
 
     @pytest.mark.component
     @pytest.mark.reset
@@ -37,10 +38,10 @@ class TestGameCore:
     @pytest.mark.reset
     def test_full_managers_reset(self, mock_game):
         """Checking if reset() correctly resets internal managers (Integration)."""
-        with patch.object(mock_game.theme, 'reset') as mock_theme_reset:
+        with patch.object(mock_game.theme, "reset") as mock_theme_reset:
             mock_game.reset()
             mock_theme_reset.assert_called_once()
-            assert hasattr(mock_game, 'enemies')
+            assert hasattr(mock_game, "enemies")
             mock_game.sounds.pause.assert_called()
 
     @pytest.mark.component
@@ -49,8 +50,7 @@ class TestGameCore:
 
         event_quit = pg.event.Event(pg.QUIT)
 
-        with patch('pygame.quit') as mock_pg_quit, \
-             patch('sys.exit') as mock_sys_exit:
+        with patch("pygame.quit") as mock_pg_quit, patch("sys.exit") as mock_sys_exit:
 
             if event_quit.type == pg.QUIT:
                 pg.quit()
@@ -62,9 +62,9 @@ class TestGameCore:
     @pytest.mark.unit
     def test_esc_key_quit(self, mock_game):
         """Checking exiting the game via the ESC key."""
-        event_esc = pg.event.Event(pg.KEYDOWN, {'key': pg.K_ESCAPE})
+        event_esc = pg.event.Event(pg.KEYDOWN, {"key": pg.K_ESCAPE})
 
-        with patch('sys.exit') as mock_sys_exit:
+        with patch("sys.exit") as mock_sys_exit:
             if event_esc.type == pg.KEYDOWN and event_esc.key == pg.K_ESCAPE:
                 sys.exit()
 
@@ -76,7 +76,7 @@ class TestGameCore:
         """Testing the account rendering logic (DRAW block)."""
 
         mock_game.screen.blit = MagicMock()
-        mock_game.state.time = 15.5 
+        mock_game.state.time = 15.5
 
         mock_game.draw_score(16)
 
@@ -86,10 +86,7 @@ class TestGameCore:
 
     @pytest.mark.component
     @pytest.mark.update
-    @pytest.mark.parametrize("dt, expected_time", [
-        (1000, 1.0),
-        (500, 0.5)
-    ])
+    @pytest.mark.parametrize("dt, expected_time", [(1000, 1.0), (500, 0.5)])
     def test_update_objects_flow(self, mock_game, dt, expected_time):
         """Testing object updates and timing."""
         mock_game.state.started = True
@@ -98,11 +95,9 @@ class TestGameCore:
 
     @pytest.mark.component
     @pytest.mark.update
-    @pytest.mark.parametrize("dt, expected_time", [
-        (1000, 1.0),
-        (500, 0.5),
-        (2000, 2.0)
-    ])
+    @pytest.mark.parametrize(
+        "dt, expected_time", [(1000, 1.0), (500, 0.5), (2000, 2.0)]
+    )
     def test_score_calculation_flow(self, mock_game, dt, expected_time):
         """Parameterized game time (score) update test."""
         keys = pg.key.get_pressed()
@@ -121,9 +116,9 @@ class TestGameCore:
         mock_enemy = MagicMock()
         mock_enemy.rect = pg.Rect(100, 100, 50, 50)
 
-        with patch.object(mock_game, 'show_explosion'), \
-             patch.object(mock_game, 'show_game_over'), \
-             patch.object(mock_game, 'wait_for_restart'):
+        with patch.object(mock_game, "show_explosion"), patch.object(
+            mock_game, "show_game_over"
+        ), patch.object(mock_game, "wait_for_restart"):
 
             mock_game.handle_crash(mock_enemy)
 
@@ -136,7 +131,8 @@ class TestGameCore:
         """Checking whether the check_collisions method is triggered when there is a collision."""
 
         mock_crash_obj = MagicMock()
-        mock_game.enemies.check_collision = MagicMock(return_value=mock_crash_obj)
+        mock_game.enemies.check_collision = MagicMock(
+            return_value=mock_crash_obj)
 
         result = mock_game.check_collisions()
 
@@ -144,16 +140,21 @@ class TestGameCore:
         mock_game.enemies.check_collision.assert_called()
 
     @pytest.mark.component
-    @pytest.mark.parametrize("press_space, started_init, expected_started", [
-        (True, False, True), # Pressed Space at start -> Game started
-        (False, False, False), # Didn't press -> Didn't start
-    ])
-    def test_start_input_logic(self, mock_game, press_space, started_init, expected_started):
+    @pytest.mark.parametrize(
+        "press_space, started_init, expected_started",
+        [
+            (True, False, True),  # Pressed Space at start -> Game started
+            (False, False, False),  # Didn't press -> Didn't start
+        ],
+    )
+    def test_start_input_logic(
+        self, mock_game, press_space, started_init, expected_started
+    ):
         """Testing game login logic through event simulation."""
         mock_game.state.started = started_init
 
         if press_space:
-            event = pg.event.Event(pg.KEYDOWN, {'key': pg.K_SPACE})
+            event = pg.event.Event(pg.KEYDOWN, {"key": pg.K_SPACE})
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 if not mock_game.state.started:
                     mock_game.state.started = True
@@ -166,7 +167,7 @@ class TestGameCore:
         mock_game.state.started = True
         mock_game.state.paused = False
 
-        event = pg.event.Event(pg.KEYDOWN, {'key': pg.K_SPACE})
+        event = pg.event.Event(pg.KEYDOWN, {"key": pg.K_SPACE})
 
         if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
             if mock_game.state.started:
@@ -182,8 +183,9 @@ class TestGameCore:
         dt = 16
         now = 1000
 
-        with patch.object(mock_game.road, 'update') as mock_road_upd, \
-             patch.object(mock_game.enemies, 'update') as mock_enemies_upd:
+        with patch.object(mock_game.road, "update") as mock_road_upd, patch.object(
+            mock_game.enemies, "update"
+        ) as mock_enemies_upd:
 
             mock_game.update_objects(keys, dt, now)
 
@@ -204,10 +206,12 @@ class TestGameCore:
 
         now = 1100
 
-        with patch.object(mock_game.enemies, 'spawn') as mock_spawn:
+        with patch.object(mock_game.enemies, "spawn") as mock_spawn:
             mock_game.update_objects(pg.key.get_pressed(), 16, now)
 
-            assert mock_spawn.called, "Spawn не викликано. Перевірте, чи не перекриваються методи в mock_game"
+            assert (
+                mock_spawn.called
+            ), "Spawn не викликано. Перевірте, чи не перекриваються методи в mock_game"
 
     @pytest.mark.component
     @pytest.mark.draw
@@ -217,9 +221,9 @@ class TestGameCore:
         mock_game.state.paused = True
         mock_game.state.started = True
 
-        with patch.object(mock_game.theme, 'apply') as mock_theme_apply, \
-             patch.object(mock_game, 'draw_players') as mock_draw_players, \
-             patch('pygame.display.flip'):
+        with patch.object(mock_game.theme, "apply") as mock_theme_apply, patch.object(
+            mock_game, "draw_players"
+        ) as mock_draw_players, patch("pygame.display.flip"):
 
             mock_game.draw(16)
 

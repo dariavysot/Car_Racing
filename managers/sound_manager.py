@@ -1,5 +1,7 @@
 import pygame as pg
+
 from config import Settings as C
+
 
 class SoundManager:
     """

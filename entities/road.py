@@ -1,17 +1,18 @@
 """
 Road environment module.
 
-Handles the background rendering and the infinite scrolling logic to 
+Handles the background rendering and the infinite scrolling logic to
 simulate continuous vehicle movement.
 """
 
 from config import Settings as C
 
+
 class Road:
     """
     Manager for the scrolling road background.
 
-    Uses a dual-surface technique to create a seamless infinite loop, 
+    Uses a dual-surface technique to create a seamless infinite loop,
     moving textures vertically based on the current game speed.
 
     Attributes
@@ -23,6 +24,7 @@ class Road:
     y2 : float
         Vertical position of the second road segment (initially off-screen).
     """
+
     def __init__(self, image):
         """
         Initialize the Road with a background texture.
@@ -40,7 +42,7 @@ class Road:
         """
         Update the vertical positions of road segments.
 
-        Calculates movement based on delta time and speed, resetting segment 
+        Calculates movement based on delta time and speed, resetting segment
         positions once they move completely off-screen to ensure a seamless loop.
 
         Parameters

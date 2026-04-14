@@ -1,26 +1,31 @@
-import pytest
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import MagicMock, call, patch
 
 import pygame as pg
+import pytest
 
-from managers.sound_manager import SoundManager
 from config import Settings as C
+from managers.sound_manager import SoundManager
 
-pytestmark = [
-    pytest.mark.component,
-    pytest.mark.sound
-]
+pytestmark = [pytest.mark.component, pytest.mark.sound]
+
 
 @pytest.fixture(autouse=True)
 def mock_pygame_mixer():
-    with patch("pygame.mixer.init") as mock_init, \
-         patch("pygame.mixer.music.load") as mock_music_load, \
-         patch("pygame.mixer.music.set_volume") as mock_music_set_vol, \
-         patch("pygame.mixer.music.play") as mock_music_play, \
-         patch("pygame.mixer.music.pause") as mock_music_pause, \
-         patch("pygame.mixer.music.unpause") as mock_music_unpause, \
-         patch("pygame.mixer.stop") as mock_mixer_stop, \
-         patch("pygame.mixer.Sound") as mock_sound_class:
+    with patch("pygame.mixer.init") as mock_init, patch(
+        "pygame.mixer.music.load"
+    ) as mock_music_load, patch(
+        "pygame.mixer.music.set_volume"
+    ) as mock_music_set_vol, patch(
+        "pygame.mixer.music.play"
+    ) as mock_music_play, patch(
+        "pygame.mixer.music.pause"
+    ) as mock_music_pause, patch(
+        "pygame.mixer.music.unpause"
+    ) as mock_music_unpause, patch(
+        "pygame.mixer.stop"
+    ) as mock_mixer_stop, patch(
+        "pygame.mixer.Sound"
+    ) as mock_sound_class:
 
         mock_engine = MagicMock(name="MockEngineSound")
         mock_crash = MagicMock(name="MockCrashSound")
@@ -68,13 +73,17 @@ def mock_channel():
 
 @pytest.mark.init
 def test_init_initializes_mixer_and_loads_assets(sound_manager, mock_pygame_mixer):
-    mock_pygame_mixer["sound_class"].assert_has_calls([
-        call("assets/sounds/engine.wav"),
-        call("assets/sounds/crash.wav"),
-        call("assets/sounds/button.wav"),
-    ], any_order=False)
+    mock_pygame_mixer["sound_class"].assert_has_calls(
+        [
+            call("assets/sounds/engine.wav"),
+            call("assets/sounds/crash.wav"),
+            call("assets/sounds/button.wav"),
+        ],
+        any_order=False,
+    )
 
-    mock_pygame_mixer["music_load"].assert_called_once_with("assets/music/music0.ogg")
+    mock_pygame_mixer["music_load"].assert_called_once_with(
+        "assets/music/music0.ogg")
     mock_pygame_mixer["music_set_vol"].assert_called_once_with(0.5)
 
     assert sound_manager.engine_channel is None
@@ -109,7 +118,7 @@ def test_reset_stops_all_and_restarts(sound_manager, mock_pygame_mixer):
         (-50, 0.0),
         (-0.1, 0.0),
     ],
-    ids=["zero", "half", "max", "over", "negative", "tiny_negative"]
+    ids=["zero", "half", "max", "over", "negative", "tiny_negative"],
 )
 def test_update_engine_volume(sound_manager, mock_channel, speed, expected_volume):
     sound_manager.engine_channel = mock_channel

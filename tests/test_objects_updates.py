@@ -1,23 +1,19 @@
-import pytest
-from unittest.mock import patch, MagicMock, call
+from logic import Game
 import os
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 os.environ["SDL_AUDIODRIVER"] = "dummy"
 
-import pygame
 
-from logic import Game
-from state import GameState
+pytestmark = [pytest.mark.component, pytest.mark.logic]
 
-pytestmark = [
-    pytest.mark.component,
-    pytest.mark.logic
-]
 
 @pytest.fixture
 def game():
-    with patch.multiple('pygame', key=None):
+    with patch.multiple("pygame", key=None):
         game_obj = Game()
 
         game_obj.update_players = MagicMock()
@@ -66,9 +62,7 @@ def test_update_objects_spawns_enemy_when_interval_passed(game):
     game.update_objects(keys, dt, now)
 
     game.enemies.spawn.assert_called_once_with(
-        game.state.max_enemies,
-        game.get_player_rects.return_value,
-        game.state.speed
+        game.state.max_enemies, game.get_player_rects.return_value, game.state.speed
     )
     assert game.state.last_spawn == now
 

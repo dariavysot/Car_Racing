@@ -1,19 +1,22 @@
 """
 Resource management and asset loading system.
 
-Provides a robust interface for loading graphical assets with automatic 
+Provides a robust interface for loading graphical assets with automatic
 procedural fallback generation in case of missing external files.
 """
 
 import os
+
 import pygame as pg
+
 from config import Settings as C
+
 
 class AssetManager:
     """
     Static utility class for loading and scaling game sprites.
 
-    Contains logic for safe image loading and procedural generation of 
+    Contains logic for safe image loading and procedural generation of
     placeholders (fallbacks) for cars, roads, and effects.
     """
 
@@ -88,8 +91,7 @@ class AssetManager:
         path = f"assets/images/{color_name}_car.png"
 
         img = AssetManager.load_sprite(
-            path,
-            lambda: AssetManager.make_car_fallback(color_name)
+            path, lambda: AssetManager.make_car_fallback(color_name)
         )
 
         return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.CAR_HEIGHT))
@@ -97,11 +99,10 @@ class AssetManager:
     @staticmethod
     def load_taxi():
         """Load and scale the taxi obstacle sprite."""
-        path = f"assets/images/taxi.png"
+        path = "assets/images/taxi.png"
 
         img = AssetManager.load_sprite(
-            path,
-            lambda: AssetManager.make_car_fallback("yellow")
+            path, lambda: AssetManager.make_car_fallback("yellow")
         )
 
         return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.CAR_HEIGHT))
@@ -112,8 +113,7 @@ class AssetManager:
         path = f"assets/images/truck_{num}.png"
 
         img = AssetManager.load_sprite(
-            path,
-            lambda: AssetManager.make_car_fallback("green")
+            path, lambda: AssetManager.make_car_fallback("green")
         )
 
         return pg.transform.smoothscale(img, (C.CAR_WIDTH, C.TRUCK_HEIGHT))
@@ -122,7 +122,4 @@ class AssetManager:
     def load_explosion():
         """Load the explosion animation sprite."""
         path = "assets/images/explosion.png"
-        return AssetManager.load_sprite(
-            path, 
-            AssetManager.make_explosion_fallback
-        )
+        return AssetManager.load_sprite(path, AssetManager.make_explosion_fallback)

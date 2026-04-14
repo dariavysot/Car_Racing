@@ -1,13 +1,13 @@
-import pytest
-from unittest.mock import patch, MagicMock
-import pygame as pg
 import math
+from unittest.mock import patch
+
+import pygame as pg
+import pytest
 
 from state import GameState, calculate_speed
 
-pytestmark = [
-    pytest.mark.state
-]
+pytestmark = [pytest.mark.state]
+
 
 @pytest.fixture
 def game_state():
@@ -20,14 +20,17 @@ def game_state():
 @pytest.mark.unit
 def test_calculate_speed_basic():
     assert calculate_speed(0) == 240
-    assert calculate_speed(3) == pytest.approx(240 + math.log(4, 4) * 60, rel=1e-6)
-    assert calculate_speed(15) == pytest.approx(240 + math.log(16, 4) * 60, rel=1e-6)
+    assert calculate_speed(3) == pytest.approx(
+        240 + math.log(4, 4) * 60, rel=1e-6)
+    assert calculate_speed(15) == pytest.approx(
+        240 + math.log(16, 4) * 60, rel=1e-6)
 
 
 @pytest.mark.unit
 def test_calculate_speed_with_custom_base():
     assert calculate_speed(0, base=300) == 300
-    assert calculate_speed(3, base=180) == pytest.approx(180 + math.log(4, 4) * 60)
+    assert calculate_speed(3, base=180) == pytest.approx(
+        180 + math.log(4, 4) * 60)
 
 
 @pytest.mark.component
@@ -107,7 +110,7 @@ def test_game_state_spawn_interval_decreases(game_state):
 
 @pytest.mark.unit
 @pytest.mark.spawn
-@patch('pygame.time.get_ticks')
+@patch("pygame.time.get_ticks")
 def test_game_state_last_spawn_is_set_on_init(mock_ticks):
     mock_ticks.return_value = 123456
     state = GameState()

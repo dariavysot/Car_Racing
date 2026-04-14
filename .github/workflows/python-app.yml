@@ -35,7 +35,7 @@ jobs:
         # зупинить білд, якщо є помилки синтаксису або невизначені змінні
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # попередження (exit-zero) для стилістичних речей
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        flake8 . --count --exit-zero --max-complexity=15 --max-line-length=127 --statistics
 
     - name: Test with pytest and generate Coverage
       run: |

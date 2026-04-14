@@ -1,21 +1,25 @@
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 import pygame as pg
+import pytest
 
-from managers.obstacle_manager import ObstacleManager
 from config import Settings as C
+from managers.obstacle_manager import ObstacleManager
 
-pytestmark = [
-    pytest.mark.obstacles
-]
+pytestmark = [pytest.mark.obstacles]
+
 
 @pytest.fixture(autouse=True)
 def mock_dependencies():
-    with patch("managers.obstacle_manager.random") as mock_random, \
-         patch("managers.obstacle_manager.pg") as mock_pg, \
-         patch("managers.obstacle_manager.Obstacle") as mock_obstacle_class, \
-         patch("managers.obstacle_manager.check_rect_collision") as mock_collision, \
-         patch("managers.obstacle_manager.C") as mock_c:
+    with patch("managers.obstacle_manager.random") as mock_random, patch(
+        "managers.obstacle_manager.pg"
+    ) as mock_pg, patch(
+        "managers.obstacle_manager.Obstacle"
+    ) as mock_obstacle_class, patch(
+        "managers.obstacle_manager.check_rect_collision"
+    ) as mock_collision, patch(
+        "managers.obstacle_manager.C"
+    ) as mock_c:
 
         mock_c.LANES = 6
         mock_c.LANE_WIDTH = 80
@@ -28,7 +32,9 @@ def mock_dependencies():
         mock_random.randint.return_value = 3
         mock_random.sample.return_value = [1, 3, 5]
         mock_random.uniform.return_value = 0.6
-        mock_random.choices.side_effect = lambda population, weights=None, k=1: [population[0]] * k
+        mock_random.choices.side_effect = (
+            lambda population, weights=None, k=1: [population[0]] * k
+        )
 
         yield {
             "random": mock_random,
@@ -93,8 +99,8 @@ def test_init_sets_attributes(obstacle_manager, mock_car_images, mock_truck_imag
 
 @pytest.mark.unit
 @pytest.mark.parametrize(
-    "lane, expected",
-    [(0, "SAME"), (1, "OPPOSITE"), (2, "SAME"), (5, "OPPOSITE")]
+    "lane, expected", [(0, "SAME"), (1, "OPPOSITE"),
+                       (2, "SAME"), (5, "OPPOSITE")]
 )
 def test_get_lane_type(obstacle_manager, lane, expected):
     assert obstacle_manager.get_lane_type(lane) == expected
@@ -109,12 +115,16 @@ def test_get_lane_type(obstacle_manager, lane, expected):
         (20, 80, 130, 190, "left"),
         (270, 340, 390, 460, "right"),
     ],
-    ids=["enough_space", "left_trapped", "right_trapped"]
+    ids=["enough_space", "left_trapped", "right_trapped"],
 )
 def test_detect_trapped_player(
     obstacle_manager,
-    left_left, left_right, right_left, right_right, expected_trapped,
-    mock_player_rects_two
+    left_left,
+    left_right,
+    right_left,
+    right_right,
+    expected_trapped,
+    mock_player_rects_two,
 ):
     p_left = mock_player_rects_two[0]
     p_right = mock_player_rects_two[1]
@@ -167,7 +177,8 @@ def test_escape_exists_returns_false_when_fully_blocked(obstacle_manager):
 @pytest.mark.spawn
 def test_is_spawn_safe_single_player(obstacle_manager, mock_player_rect):
     obstacle_manager.escape_exists = MagicMock(return_value=True)
-    assert obstacle_manager.is_spawn_safe([MagicMock()], [mock_player_rect]) is True
+    assert obstacle_manager.is_spawn_safe(
+        [MagicMock()], [mock_player_rect]) is True
 
 
 @pytest.mark.component
@@ -176,7 +187,8 @@ def test_is_spawn_safe_two_players_both_safe(obstacle_manager, mock_player_rects
     obstacle_manager.escape_exists = MagicMock(return_value=True)
     obstacle_manager.detect_trapped_player = MagicMock(return_value=None)
 
-    assert obstacle_manager.is_spawn_safe([MagicMock()], mock_player_rects_two) is True
+    assert obstacle_manager.is_spawn_safe(
+        [MagicMock()], mock_player_rects_two) is True
     assert obstacle_manager.escape_exists.call_count == 2
 
 
@@ -187,12 +199,15 @@ def test_is_spawn_safe_two_players_trapped(obstacle_manager, mock_player_rects_t
     obstacle_manager.detect_trapped_player = MagicMock(return_value=trapped)
     obstacle_manager.escape_exists = MagicMock(return_value=True)
 
-    assert obstacle_manager.is_spawn_safe([MagicMock()], mock_player_rects_two) is True
+    assert obstacle_manager.is_spawn_safe(
+        [MagicMock()], mock_player_rects_two) is True
 
 
 @pytest.mark.component
 @pytest.mark.spawn
-def test_spawn_creates_obstacles_when_safe(obstacle_manager, mock_player_rect, mock_dependencies):
+def test_spawn_creates_obstacles_when_safe(
+    obstacle_manager, mock_player_rect, mock_dependencies
+):
     obstacle_manager.is_spawn_safe = MagicMock(return_value=True)
     obstacle_manager.get_lane_type = MagicMock(return_value="SAME")
 
@@ -204,8 +219,12 @@ def test_spawn_creates_obstacles_when_safe(obstacle_manager, mock_player_rect, m
 
 @pytest.mark.component
 @pytest.mark.spawn
-def test_spawn_respects_trapped_player_safe_lane(obstacle_manager, mock_player_rects_two):
-    obstacle_manager.detect_trapped_player = MagicMock(return_value=mock_player_rects_two[0])
+def test_spawn_respects_trapped_player_safe_lane(
+    obstacle_manager, mock_player_rects_two
+):
+    obstacle_manager.detect_trapped_player = MagicMock(
+        return_value=mock_player_rects_two[0]
+    )
     obstacle_manager.is_spawn_safe = MagicMock(return_value=True)
 
     obstacle_manager.spawn(max_enemies=1.0, player_rects=mock_player_rects_two)

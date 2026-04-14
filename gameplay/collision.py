@@ -6,6 +6,7 @@ and overlap detection between players and obstacles using Axis-Aligned
 Bounding Box (AABB) logic.
 """
 
+
 def check_rect_collision(a, b):
     """
     Check for an intersection between two rectangular bounding boxes.
@@ -34,8 +35,5 @@ def check_rect_collision(a, b):
     - The top edge of 'a' is further up than the bottom edge of 'b'.
     """
     return (
-        a.right > b.left and
-        a.left < b.right and
-        a.bottom > b.top and
-        a.top < b.bottom
+        a.right > b.left and a.left < b.right and a.bottom > b.top and a.top < b.bottom
     )

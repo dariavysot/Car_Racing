@@ -1,14 +1,17 @@
-import pytest
-from unittest.mock import MagicMock, patch
-import pygame as pg
 from math import isclose
-from core.game_object import GameObject
-from managers.theme_manager import ThemeManager
-from managers.asset_manager import AssetManager
-from entities.road import Road
-from entities.player import PlayerCar
-from entities.obstacle import Obstacle
+from unittest.mock import MagicMock, patch
+
+import pygame as pg
+import pytest
+
 from config import Settings as C
+from core.game_object import GameObject
+from entities.obstacle import Obstacle
+from entities.player import PlayerCar
+from entities.road import Road
+from managers.asset_manager import AssetManager
+from managers.theme_manager import ThemeManager
+
 
 @pytest.mark.entities
 class TestGameObject:
@@ -17,7 +20,7 @@ class TestGameObject:
     @pytest.fixture
     def base_obj(self):
         """We use a real surface to check the correct geometry of Rect."""
-        img = pg.Surface((40, 80)) 
+        img = pg.Surface((40, 80))
         return GameObject(img, 100, 200)
 
     @pytest.mark.component
@@ -41,7 +44,7 @@ class TestGameObject:
     def test_draw_lights_skipped_during_day(self, base_obj):
         """Checking that the light is not drawn during the day."""
         mock_screen = MagicMock(spec=pg.Surface)
-        with patch.object(base_obj, '_draw_headlights') as mock_head:
+        with patch.object(base_obj, "_draw_headlights") as mock_head:
             base_obj.draw_lights(mock_screen, is_night=False)
             mock_head.assert_not_called()
 
@@ -51,10 +54,12 @@ class TestGameObject:
     def test_draw_lights_called_at_night(self, base_obj, direction):
         """Checking that headlight drawing methods are called at night."""
         mock_screen = MagicMock(spec=pg.Surface)
-        with patch.object(base_obj, '_draw_headlights') as mock_head, \
-             patch.object(base_obj, '_draw_taillights') as mock_tail:
+        with patch.object(base_obj, "_draw_headlights") as mock_head, patch.object(
+            base_obj, "_draw_taillights"
+        ) as mock_tail:
 
-            base_obj.draw_lights(mock_screen, is_night=True, direction=direction)
+            base_obj.draw_lights(
+                mock_screen, is_night=True, direction=direction)
 
             mock_head.assert_called_once_with(mock_screen, direction)
             mock_tail.assert_called_once_with(mock_screen, direction)
@@ -77,6 +82,7 @@ class TestGameObject:
         """Technical test for coverage of empty update method."""
 
         assert base_obj.update() is None
+
 
 @pytest.mark.theme
 class TestThemeManager:
@@ -143,6 +149,7 @@ class TestThemeManager:
         assert manager.is_night is False
         assert manager.timer == 0
 
+
 @pytest.mark.entities
 class TestRoad:
     """Tests for the infinite scrolling road background."""
@@ -183,6 +190,7 @@ class TestRoad:
         road.draw(mock_screen)
 
         assert mock_screen.blit.call_count == 2
+
 
 @pytest.mark.entities
 class TestPlayer:
@@ -235,17 +243,18 @@ class TestPlayer:
         player.draw(screen)
         player.draw_only_light(screen, is_night=True)
 
+
 @pytest.mark.component
 @pytest.mark.assets
 class TestAssetManager:
     """Tests for the resource loading and fallback system."""
-    
+
     def test_load_sprite_with_fallback(self):
         """Check that the loader calls a fallback if the file does not exist."""
 
-        with patch('os.path.exists', return_value=False):
+        with patch("os.path.exists", return_value=False):
             # Create a simple fallback that returns a red square
-            fallback = lambda: pg.Surface((10, 10))
+            def fallback(): return pg.Surface((10, 10))
             sprite = AssetManager.load_sprite("fake_path.png", fallback)
 
             assert sprite.get_width() == 10
@@ -263,11 +272,11 @@ class TestAssetManager:
 
         # Check explosion fallback
         expl = AssetManager.make_explosion_fallback()
-        assert expl.get_width() == 100 # radius 50 * 2
+        assert expl.get_width() == 100  # radius 50 * 2
 
     def test_load_methods_with_missing_files(self):
         """Emulate the complete absence of assets for all types of objects."""
-        with patch('os.path.exists', return_value=False):
+        with patch("os.path.exists", return_value=False):
             # Test loading a road without a file
             road = AssetManager.load_road()
             assert road.get_height() == C.HEIGHT
@@ -280,6 +289,7 @@ class TestAssetManager:
             truck = AssetManager.load_truck(1)
             assert truck.get_height() == C.TRUCK_HEIGHT
 
+
 @pytest.mark.obstacles
 class TestObstacle:
 
@@ -290,7 +300,7 @@ class TestObstacle:
     @pytest.fixture
     def obstacle(self, obstacle_img):
         return Obstacle(obstacle_img, lane=1, y=100.0, speed=200.0)
-    
+
     @pytest.mark.component
     @pytest.mark.init
     def test_init(self, obstacle_img):
@@ -314,7 +324,7 @@ class TestObstacle:
     def test_update(self, obstacle):
         dt_sec = 0.2
         initial_y = obstacle.rect.y
-        
+
         obstacle.update(dt_sec)
 
         expected_y = initial_y + obstacle.speed * dt_sec
@@ -341,7 +351,7 @@ class TestObstacle:
     def test_draw_methods(self, obstacle):
         """Тест методів малювання (аналогічно до TestPlayer)."""
         screen = pg.Surface((C.WIDTH, C.HEIGHT))
-        
+
         obstacle.draw(screen)
         obstacle.draw_only_light(screen, is_night=True)
         obstacle.draw_only_light(screen, is_night=False)
