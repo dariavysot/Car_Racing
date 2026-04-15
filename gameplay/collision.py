@@ -35,5 +35,8 @@ def check_rect_collision(a, b):
     - The top edge of 'a' is further up than the bottom edge of 'b'.
     """
     return (
-        a.right > b.left and a.left < b.right and a.bottom > b.top and a.top < b.bottom
+        a.right > b.left and
+        a.left < b.right and
+        a.bottom > b.top and
+        a.top < b.bottom
     )
