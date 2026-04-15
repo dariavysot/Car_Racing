@@ -16,25 +16,21 @@ class TestVersusGame:
 
     @pytest.fixture
     def mock_versus_game(self):
-        import os
-        os.environ["SDL_VIDEODRIVER"] = "dummy"
-        os.environ["SDL_AUDIODRIVER"] = "dummy"
-
         fake_surface = pg.Surface((10, 10))
+
         mock_surface_obj = MagicMock(spec=pg.Surface)
         mock_surface_obj.convert_alpha.return_value = fake_surface
         mock_surface_obj.get_rect.return_value = fake_surface.get_rect()
 
         with patch('pygame.display.set_mode'), \
+                patch('pygame.display.init'), \
                 patch('pygame.display.flip'), \
                 patch('pygame.time.delay'), \
                 patch('pygame.image.load', return_value=mock_surface_obj), \
+                patch('pygame.transform.smoothscale', return_value=fake_surface), \
                 patch('pygame.font.SysFont'), \
                 patch('pygame.mixer.init'), \
-                patch('logic.SoundManager'):
-            pg.init()
-            pg.display.set_mode((1, 1))
-
+                patch('logic.SoundManager', return_value=MagicMock()):
             game = TwoPlayersGame()
             game.handle_result = MagicMock()
             game.sounds = MagicMock()
