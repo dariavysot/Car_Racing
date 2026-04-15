@@ -3,7 +3,6 @@ from config import Settings as C
 from core.game_object import GameObject
 
 
-
 class Obstacle(GameObject):
     """
     A class representing an obstacle in the game world.

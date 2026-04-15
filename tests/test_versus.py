@@ -12,17 +12,22 @@ class TestVersusGame:
 
     @pytest.fixture
     def mock_versus_game(self):
-        """Isolated fixture with mocked hardware and assets."""
+        """Isolated fixture with mocked hardware and assets to prevent Segfault."""
         fake_surface = pg.Surface((10, 10))
         mock_surface_obj = MagicMock(spec=pg.Surface)
         mock_surface_obj.convert_alpha.return_value = fake_surface
         mock_surface_obj.get_rect.return_value = fake_surface.get_rect()
 
         with patch('pygame.display.set_mode'), \
-                patch('pygame.image.load', return_value=mock_surface_obj), \
-                patch('pygame.font.SysFont'), \
-                patch('pygame.mixer.init'), \
-                patch('logic.SoundManager'):
+             patch('pygame.display.set_caption'), \
+             patch('pygame.display.set_icon'), \
+             patch('pygame.image.load', return_value=mock_surface_obj), \
+             patch('pygame.font.SysFont'), \
+             patch('pygame.transform.smoothscale', return_value=fake_surface), \
+             patch('os.path.exists', return_value=True), \
+             patch('pygame.mixer.init'), \
+             patch('logic.SoundManager'):
+
             pg.font.init()
             game = TwoPlayersGame()
             game.handle_result = MagicMock()

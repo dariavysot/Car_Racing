@@ -9,6 +9,7 @@ import os
 import pygame as pg
 from config import Settings as C
 
+
 class AssetManager:
     """
     Static utility class for loading and scaling game sprites.
