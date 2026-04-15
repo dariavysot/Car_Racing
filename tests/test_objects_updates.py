@@ -1,8 +1,9 @@
-from logic import Game
 import os
 from unittest.mock import MagicMock, patch
 
 import pytest
+
+from logic import Game
 
 os.environ["SDL_VIDEODRIVER"] = "dummy"
 os.environ["SDL_AUDIODRIVER"] = "dummy"

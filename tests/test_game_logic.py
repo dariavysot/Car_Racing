@@ -1,5 +1,5 @@
 import sys
-from unittest.mock import MagicMock, PropertyMock, patch, mock_open
+from unittest.mock import MagicMock, PropertyMock, mock_open, patch
 
 import pygame as pg
 import pytest

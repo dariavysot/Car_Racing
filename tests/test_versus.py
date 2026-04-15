@@ -1,8 +1,12 @@
+from gameplay.two_players import TwoPlayersGame
+from config import Settings as C
 import pytest
 import pygame as pg
 from unittest.mock import MagicMock, patch
-from config import Settings as C
-from gameplay.two_players import TwoPlayersGame
+import os
+
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_AUDIODRIVER"] = "dummy"
 
 
 @pytest.mark.unit
@@ -14,6 +18,7 @@ class TestVersusGame:
     def mock_versus_game(self):
         """Isolated fixture with mocked hardware and assets to prevent Segfault."""
         fake_surface = pg.Surface((10, 10))
+
         mock_surface_obj = MagicMock(spec=pg.Surface)
         mock_surface_obj.convert_alpha.return_value = fake_surface
         mock_surface_obj.get_rect.return_value = fake_surface.get_rect()
@@ -31,6 +36,8 @@ class TestVersusGame:
             pg.font.init()
             game = TwoPlayersGame()
             game.handle_result = MagicMock()
+            game.sounds = MagicMock()
+
             return game
 
     @pytest.mark.init

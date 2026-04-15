@@ -6,7 +6,9 @@ procedural fallback generation in case of missing external files.
 """
 
 import os
+
 import pygame as pg
+
 from config import Settings as C
 
 

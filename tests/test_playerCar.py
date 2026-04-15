@@ -1,7 +1,9 @@
-import pytest
-import pygame as pg
-from config import Settings as C
 from unittest.mock import MagicMock, patch
+
+import pygame as pg
+import pytest
+
+from config import Settings as C
 from logic import Game
 
 

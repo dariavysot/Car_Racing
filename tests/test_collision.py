@@ -1,5 +1,6 @@
 import pytest
 from pygame import Rect
+
 from gameplay.collision import check_rect_collision
 
 
