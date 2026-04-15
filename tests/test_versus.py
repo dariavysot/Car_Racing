@@ -1,3 +1,7 @@
+import os
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_AUDIODRIVER"] = "dummy"
+
 import pytest
 import pygame as pg
 from unittest.mock import MagicMock, patch
@@ -12,20 +16,29 @@ class TestVersusGame:
 
     @pytest.fixture
     def mock_versus_game(self):
-        """Isolated fixture with mocked hardware and assets."""
+        import os
+        os.environ["SDL_VIDEODRIVER"] = "dummy"
+        os.environ["SDL_AUDIODRIVER"] = "dummy"
+
         fake_surface = pg.Surface((10, 10))
         mock_surface_obj = MagicMock(spec=pg.Surface)
         mock_surface_obj.convert_alpha.return_value = fake_surface
         mock_surface_obj.get_rect.return_value = fake_surface.get_rect()
 
         with patch('pygame.display.set_mode'), \
+                patch('pygame.display.flip'), \
+                patch('pygame.time.delay'), \
                 patch('pygame.image.load', return_value=mock_surface_obj), \
                 patch('pygame.font.SysFont'), \
                 patch('pygame.mixer.init'), \
                 patch('logic.SoundManager'):
-            pg.font.init()
+            pg.init()
+            pg.display.set_mode((1, 1))
+
             game = TwoPlayersGame()
             game.handle_result = MagicMock()
+            game.sounds = MagicMock()
+
             return game
 
     @pytest.mark.init
